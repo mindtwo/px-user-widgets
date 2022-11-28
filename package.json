@@ -1,0 +1,29 @@
+{
+    "name": "@mindtwo/px-user-widgets",
+    "type": "module",
+    "files": ["dist"],
+    "version": "1.0.0",
+    "description": "Wrapper for PX User Widgets",
+    "main": "./dist/px-user-widgets.umd.cjs",
+    "module": "./dist/px-user-widgets.js",
+    "exports": {
+        ".": {
+            "import": "./dist/px-user-widgets.js",
+            "require": "./dist/px-user-widgets.umd.cjs"
+        }
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "vnr",
+        "auth",
+        "user",
+        "px"
+    ],
+    "author": "mindtwo",
+    "license": "ISC",
+    "dependencies": {
+        "vite": "^3.2.4"
+    }
+}
