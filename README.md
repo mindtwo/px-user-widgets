@@ -31,6 +31,13 @@ To fully use the widgets add the following snippets to your main view:
 
 ### Add a widget to the page
 
+First you need to import the script inside your main js file. This can be e.g. the entry point of your vite/mix build
+pipeline. You can do this by adding the follwing line:
+
+```js
+import '@mindtwo/px-user-widgets'
+```
+
 The package will register custom components for you. To use a component simply add teh following to your DOM
 
 ```html
