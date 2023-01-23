@@ -8,7 +8,7 @@ export class UserComponent extends HTMLElement {
         this.token = this.getAttribute('data-token');
         this.appUrl = this.getAttribute('data-app-url');
 
-        this.cssUrl = `${this.appUrl}/storage/assets/css/px-user.css`;
+        this.cssPath = this.getAttribute('data-css-path') ?? 'storage/assets/css/px-user.css';
 
         this.module = new PxModUser({
             stage: this.getAttribute('stage') ?? window.PX_USER_STAGE,
@@ -110,6 +110,10 @@ export class UserComponent extends HTMLElement {
         };
 
         return base;
+    }
+
+    get cssUrl() {
+        return `${this.appUrl}/${this.cssPath}`;
     }
 
     /**
