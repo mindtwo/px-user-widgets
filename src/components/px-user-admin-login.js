@@ -38,10 +38,7 @@ export class PxUserAdminLogin extends UserComponent {
      */
     login(response) {
         const data = response.response;
-        this.request('/admin/login', data).then(async (res) => {
-            if (res.redirected) {
-                window.location.href = res.url;
-            }
-        });
+
+        window.dispatchEvent(new CustomEvent('px-user-adminLoggedIn', { detail: data }));
     }
 }
