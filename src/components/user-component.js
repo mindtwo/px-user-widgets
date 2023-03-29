@@ -7,6 +7,7 @@ export class UserComponent extends HTMLElement {
         this.containerId = this.getAttribute('data-containerId') ?? this.getContainerId();
         this.token = this.getAttribute('data-token');
         this.appUrl = this.getAttribute('data-app-url');
+        this.platformPublicAuthToken = this.getAttribute('data-platform-public-auth-token');
 
         this.cssPath = this.getAttribute('data-css-path') ?? 'storage/assets/css/px-user.css';
 
@@ -108,6 +109,10 @@ export class UserComponent extends HTMLElement {
         const base = {
             'Content-Type': 'application/json',
         };
+
+        if(this.platformPublicAuthToken) {
+            base['X-Platform-Public-Auth-Token'] = this.platformPublicAuthToken;
+        }
 
         return base;
     }

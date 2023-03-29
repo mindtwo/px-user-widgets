@@ -4,7 +4,7 @@ class n extends HTMLElement {
   }
   getAttrValues() {
     var s, t, e, o, a;
-    this.containerId = (s = this.getAttribute("data-containerId")) != null ? s : this.getContainerId(), this.token = this.getAttribute("data-token"), this.appUrl = this.getAttribute("data-app-url"), this.cssPath = (t = this.getAttribute("data-css-path")) != null ? t : "storage/assets/css/px-user.css", this.module = new PxModUser({
+    this.containerId = (s = this.getAttribute("data-containerId")) != null ? s : this.getContainerId(), this.token = this.getAttribute("data-token"), this.appUrl = this.getAttribute("data-app-url"), this.platformPublicAuthToken = this.getAttribute("data-platform-public-auth-token"), this.cssPath = (t = this.getAttribute("data-css-path")) != null ? t : "storage/assets/css/px-user.css", this.module = new PxModUser({
       stage: (e = this.getAttribute("stage")) != null ? e : window.PX_USER_STAGE,
       domain: (o = this.getAttribute("domain")) != null ? o : window.PX_USER_DOMAIN,
       tenant: (a = this.getAttribute("tenant")) != null ? a : window.PX_USER_TENANT,
@@ -42,9 +42,10 @@ class n extends HTMLElement {
     return s;
   }
   get headers() {
-    return {
+    const s = {
       "Content-Type": "application/json"
     };
+    return this.platformPublicAuthToken && (s["X-Platform-Public-Auth-Token"] = this.platformPublicAuthToken), s;
   }
   get cssUrl() {
     return `${this.appUrl}/${this.cssPath}`;
@@ -169,9 +170,7 @@ class u extends n {
   }
   login(s) {
     const t = s.response;
-    this.request("/admin/login", t).then(async (e) => {
-      e.redirected && (window.location.href = e.url);
-    });
+    window.dispatchEvent(new CustomEvent("px-user-adminLoggedIn", { detail: t }));
   }
 }
 customElements.get("px-user-login") === void 0 && customElements.define("px-user-login", i);
