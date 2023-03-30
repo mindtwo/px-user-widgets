@@ -1,7 +1,9 @@
 {
     "name": "@mindtwo/px-user-widgets",
     "type": "module",
-    "files": ["dist"],
+    "files": [
+        "dist"
+    ],
     "version": "1.0.4",
     "description": "Wrapper for PX User Widgets",
     "main": "./dist/px-user-widgets.umd.cjs",
