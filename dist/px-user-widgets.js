@@ -47,7 +47,7 @@ class n extends HTMLElement {
     };
   }
   get cssUrl() {
-    return this.cssPath.includes("//:") ? this.cssPath : `${this.appUrl}/${this.cssPath}`;
+    return this.cssPath.startsWith("http://") || this.cssPath.startsWith("https://") || this.cssPath.startsWith("//") ? this.cssPath : `${this.appUrl}/${this.cssPath}`;
   }
   request(s, t = null) {
     return fetch(s, {

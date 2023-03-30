@@ -113,7 +113,7 @@ export class UserComponent extends HTMLElement {
     }
 
     get cssUrl() {
-        if(this.cssPath.includes('//:')) {
+        if(this.cssPath.startsWith('http://') || this.cssPath.startsWith('https://') || this.cssPath.startsWith('//')) {
             return this.cssPath;
         }
 
