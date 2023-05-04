@@ -10,6 +10,7 @@ export class PxUserLogin extends UserComponent {
         this.module.showLoginForm({
             containerElement: this.containerId,
             fallbackTargetUrl,
+            fallbackButtonText: 'Login!',
             icons: {
                 togglePassword: {
                     password: true

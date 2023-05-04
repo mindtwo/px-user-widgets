@@ -11,6 +11,7 @@ export class PxUserSetPassword extends UserComponent {
             token: this.token,
             containerElement: this.containerId,
             fallbackTargetUrl,
+            fallbackButtonText: 'Reset Password!',
             cssUrl: this.cssUrl,
             icons: {
                 togglePassword: {

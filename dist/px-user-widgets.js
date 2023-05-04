@@ -61,6 +61,7 @@ class c extends n {
     this.module.showLoginForm({
       containerElement: this.containerId,
       fallbackTargetUrl: s,
+      fallbackButtonText: "Login!",
       icons: {
         togglePassword: {
           password: !0
@@ -86,6 +87,7 @@ class d extends n {
     this.module.showActivateUserForm({
       token: this.token,
       containerElement: this.containerId,
+      fallbackButtonText: "Set Password!",
       fallbackTargetUrl: s,
       cssUrl: this.cssUrl,
       onSuccess: (e) => this.showSuccess(e),
@@ -102,6 +104,7 @@ class l extends n {
     this.module.showPasswordForgotForm({
       containerElement: this.containerId,
       fallbackTargetUrl: s,
+      fallbackButtonText: "Send password reset email!",
       cssUrl: this.cssUrl,
       onSuccess: (e) => this.showSuccess(e),
       onError: (e) => this.handleError(e)
@@ -118,6 +121,7 @@ class u extends n {
       token: this.token,
       containerElement: this.containerId,
       fallbackTargetUrl: s,
+      fallbackButtonText: "Reset Password!",
       cssUrl: this.cssUrl,
       icons: {
         togglePassword: {
@@ -140,6 +144,7 @@ class h extends n {
     this.module.showLoginForm({
       containerElement: this.containerId,
       fallbackTargetUrl: s,
+      fallbackButtonText: "Login!",
       icons: {
         togglePassword: {
           password: !0

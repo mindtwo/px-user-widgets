@@ -10,6 +10,7 @@ export class PxUserActivateUser extends UserComponent {
         this.module.showActivateUserForm({
             token: this.token,
             containerElement: this.containerId,
+            fallbackButtonText: 'Set Password!',
             fallbackTargetUrl,
             cssUrl: this.cssUrl,
             onSuccess: (response) => this.showSuccess(response),

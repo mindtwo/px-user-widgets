@@ -12,6 +12,7 @@ export class PxUserActivateUser extends UserComponent {
             showPasswordRules: true,
             containerElement: this.containerId,
             fallbackTargetUrl,
+            fallbackButtonText: 'Activate user and login!',
             cssUrl: this.cssUrl,
             icons: {
                 togglePassword: {

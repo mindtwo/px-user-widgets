@@ -10,6 +10,7 @@ export class PxUserForgotPassword extends UserComponent {
         this.module.showPasswordForgotForm({
             containerElement: this.containerId,
             fallbackTargetUrl,
+            fallbackButtonText: 'Send password reset email!',
             cssUrl: this.cssUrl,
             onSuccess: (response) => this.showSuccess(response),
             onError: (error) => this.handleError(error),
