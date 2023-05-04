@@ -3,9 +3,9 @@ class n extends HTMLElement {
     super();
   }
   getAttrValues() {
-    var t, e, s, o, a, i;
+    var t, e, r, o, a, i;
     this.containerId = (t = this.getAttribute("data-containerId")) != null ? t : this.getContainerId(), this.token = this.getAttribute("data-token"), this.appUrl = this.getAttribute("data-app-url"), this.language = this.getAttribute("data-language"), this.cssPath = (e = this.getAttribute("data-css-path")) != null ? e : "storage/assets/css/px-user.css", this.module = new PxModUser({
-      stage: (s = this.getAttribute("stage")) != null ? s : window.PX_USER_STAGE,
+      stage: (r = this.getAttribute("stage")) != null ? r : window.PX_USER_STAGE,
       domain: (o = this.getAttribute("domain")) != null ? o : window.PX_USER_DOMAIN,
       tenant: (a = this.getAttribute("tenant")) != null ? a : window.PX_USER_TENANT,
       language: (i = this.language) != null ? i : "de"
@@ -17,8 +17,8 @@ class n extends HTMLElement {
     t.id = this.containerId, t.classList.add("user-component"), this.append(t);
     const e = document.createElement("span");
     e.id = `${this.containerId}-error`, t.append(e);
-    const s = document.createElement("span");
-    s.id = `${this.containerId}-success`, t.append(s), this.mountIFrame();
+    const r = document.createElement("span");
+    r.id = `${this.containerId}-success`, t.append(r), this.mountIFrame();
   }
   mountIFrame() {
     console.warn("Override mountIFrame inside your class");
@@ -27,9 +27,8 @@ class n extends HTMLElement {
     console.warn('Either set attribute "data-container-id" on element or override "getContainerId" inside your class');
   }
   handleError(t) {
-    var s;
     const e = document.querySelector(`#${this.containerId}-error`);
-    e.textContent = (s = t.message) != null ? s : this._t("An error occured"), e.classList.add("error-message"), e.classList.add("mb-2");
+    e.textContent = t.message, e.classList.add("error-message"), e.classList.add("mb-2");
   }
   showSuccess(t) {
     if (t.success) {

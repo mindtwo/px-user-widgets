@@ -67,7 +67,7 @@ export class UserComponent extends HTMLElement {
      */
     handleError(error) {
         const errorMessage = document.querySelector(`#${this.containerId}-error`);
-        errorMessage.textContent = error.message ?? this._t('An error occured');
+        errorMessage.textContent = error.message;
         errorMessage.classList.add('error-message');
         errorMessage.classList.add('mb-2');
     }
@@ -85,7 +85,7 @@ export class UserComponent extends HTMLElement {
             // set our success message
             const successMessage = document.querySelector(`#${this.containerId}-success`);
             successMessage.classList.add('success-message');
-            successMessage.textContent = data.message; // ?? this._t('The data submission was successful. Please check your mails for further steps');
+            successMessage.textContent = data.message;
             successMessage.classList.add('mb-2');
         }
     }
