@@ -91,17 +91,6 @@ export class UserComponent extends HTMLElement {
     }
 
     /**
-     * Translate string
-     *
-     * @param key
-     * @param replace
-     * @returns {string}
-     */
-    _t(key, replace = {}) {
-        return key;
-    }
-
-    /**
      * Get request headers for internal and external requests
      * @returns {Object}
      */
