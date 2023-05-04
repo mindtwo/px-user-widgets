@@ -1,11 +1,11 @@
 import {UserComponent} from './user-component';
 
-export class PxUserActivateUser extends UserComponent {
+export class PxUserActivateUserWithActivationCode extends UserComponent {
     /**
      * Mount iframe
      */
     mountIFrame() {
-        const fallbackTargetUrl = `${this.appUrl}/api/v1/activation-with-code`;
+        const fallbackTargetUrl = `${this.appUrl}/api/v1/activation-code`;
 
         this.module.showActivateUserByActivationCodeForm({
             token: this.token,
