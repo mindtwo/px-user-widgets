@@ -11,13 +11,14 @@ export class PxUserSetPassword extends UserComponent {
             token: this.token,
             containerElement: this.containerId,
             fallbackTargetUrl,
-            fallbackButtonText: this._t('Password reset'),
             cssUrl: this.cssUrl,
-            labels: {
-                buttonText: this._t('Password reset'),
-                passwordOne: this._t('Password'),
-                passwordTwo: this._t('Password confirmation'),
+            icons: {
+                togglePassword: {
+                    passwordOne: true,
+                    passwordTwo: true
+                }
             },
+            showPasswordRules: true,
             onSuccess: (response) => this.showSuccess(response),
             onError: (error) => this.handleError(error),
         });

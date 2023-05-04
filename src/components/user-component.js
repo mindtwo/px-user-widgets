@@ -7,6 +7,7 @@ export class UserComponent extends HTMLElement {
         this.containerId = this.getAttribute('data-containerId') ?? this.getContainerId();
         this.token = this.getAttribute('data-token');
         this.appUrl = this.getAttribute('data-app-url');
+        this.language = this.getAttribute('data-language');
 
         this.cssPath = this.getAttribute('data-css-path') ?? 'storage/assets/css/px-user.css';
 
@@ -14,7 +15,7 @@ export class UserComponent extends HTMLElement {
             stage: this.getAttribute('stage') ?? window.PX_USER_STAGE,
             domain: this.getAttribute('domain') ?? window.PX_USER_DOMAIN,
             tenant: this.getAttribute('tenant') ?? window.PX_USER_TENANT,
-            language: 'de'
+            language: this.language ?? 'de',
         });
     }
 

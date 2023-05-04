@@ -1,23 +1,26 @@
 import {UserComponent} from './user-component';
 
-export class PxUserLogin extends UserComponent {
+export class PxUserActivateUser extends UserComponent {
     /**
      * Mount iframe
      */
     mountIFrame() {
-        const fallbackTargetUrl = `${this.appUrl}/api/v2/login`;
+        const fallbackTargetUrl = `${this.appUrl}/api/v1/doi-activation`;
 
-        this.module.showLoginForm({
+        this.module.showActivateUserLoginForm({
+            token: this.token,
+            showPasswordRules: true,
             containerElement: this.containerId,
             fallbackTargetUrl,
+            cssUrl: this.cssUrl,
             icons: {
                 togglePassword: {
-                    password: true
+                    passwordOne: true,
+                    passwordTwo: true
                 }
             },
-            cssUrl: this.cssUrl,
             onSuccess: (response) => this.login(response),
-            onError: (response) => this.handleError(response),
+            onError: (error) => this.handleError(error),
         });
     }
 
@@ -26,8 +29,8 @@ export class PxUserLogin extends UserComponent {
      *
      * @returns {String}
      */
-    getContainerId() {
-        return 'px-user-login';
+     getContainerId() {
+        return 'px-user-activate-user-and-login';
     }
 
     /**

@@ -10,13 +10,12 @@ export class PxUserAdminLogin extends UserComponent {
         this.module.showLoginForm({
             containerElement: this.containerId,
             fallbackTargetUrl,
-            fallbackButtonText: this._t('Login'),
-            cssUrl: this.cssUrl,
-            labels: {
-                buttonText: this._t('Login'),
-                username: this._t('Email'),
-                password: this._t('Password'),
+            icons: {
+                togglePassword: {
+                    password: true
+                }
             },
+            cssUrl: this.cssUrl,
             onSuccess: (response) => this.login(response),
             onError: (error) => this.handleError(error),
         });
