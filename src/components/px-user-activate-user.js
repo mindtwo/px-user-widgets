@@ -13,7 +13,7 @@ export class PxUserActivateUser extends UserComponent {
             fallbackButtonText: 'Set Password!',
             fallbackTargetUrl,
             cssUrl: this.cssUrl,
-            onSuccess: (response) => this.showSuccess(response),
+            onSuccess: (response) => this.handleSuccess(response),
             onError: (error) => this.handleError(error),
         });
     }

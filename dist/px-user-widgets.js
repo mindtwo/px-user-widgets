@@ -3,9 +3,9 @@ class n extends HTMLElement {
     super();
   }
   getAttrValues() {
-    var t, e, r, o, a, i;
+    var t, e, s, o, a, i;
     this.containerId = (t = this.getAttribute("data-containerId")) != null ? t : this.getContainerId(), this.token = this.getAttribute("data-token"), this.appUrl = this.getAttribute("data-app-url"), this.language = this.getAttribute("data-language"), this.cssPath = (e = this.getAttribute("data-css-path")) != null ? e : "storage/assets/css/px-user.css", this.module = new PxModUser({
-      stage: (r = this.getAttribute("stage")) != null ? r : window.PX_USER_STAGE,
+      stage: (s = this.getAttribute("stage")) != null ? s : window.PX_USER_STAGE,
       domain: (o = this.getAttribute("domain")) != null ? o : window.PX_USER_DOMAIN,
       tenant: (a = this.getAttribute("tenant")) != null ? a : window.PX_USER_TENANT,
       language: (i = this.language) != null ? i : "de"
@@ -17,8 +17,8 @@ class n extends HTMLElement {
     t.id = this.containerId, t.classList.add("user-component"), this.append(t);
     const e = document.createElement("span");
     e.id = `${this.containerId}-error`, t.append(e);
-    const r = document.createElement("span");
-    r.id = `${this.containerId}-success`, t.append(r), this.mountIFrame();
+    const s = document.createElement("span");
+    s.id = `${this.containerId}-success`, t.append(s), this.mountIFrame();
   }
   mountIFrame() {
     console.warn("Override mountIFrame inside your class");
@@ -30,11 +30,13 @@ class n extends HTMLElement {
     const e = document.querySelector(`#${this.containerId}-error`);
     e.textContent = t.message, e.classList.add("error-message"), e.classList.add("mb-2");
   }
-  showSuccess(t) {
+  handleSuccess(t, e = !0) {
     if (t.success) {
-      document.querySelector(`#${this.containerId} .px-user-widget`).remove();
-      const e = document.querySelector(`#${this.containerId}-success`);
-      e.classList.add("success-message"), e.textContent = t.message, e.classList.add("mb-2");
+      e && document.querySelector(`#${this.containerId} .px-user-widget`).remove();
+      const s = document.querySelector(`#${this.containerId}-success`);
+      s.classList.add("success-message"), s.textContent = t.message, s.classList.add("mb-2"), window.dispatchEvent(new CustomEvent("px-user-success", {
+        detail: t
+      }));
     }
   }
   get headers() {
@@ -89,7 +91,7 @@ class d extends n {
       fallbackButtonText: "Set Password!",
       fallbackTargetUrl: t,
       cssUrl: this.cssUrl,
-      onSuccess: (e) => this.showSuccess(e),
+      onSuccess: (e) => this.handleSuccess(e),
       onError: (e) => this.handleError(e)
     });
   }
@@ -97,7 +99,7 @@ class d extends n {
     return "px-user-activate-user";
   }
 }
-class u extends n {
+class l extends n {
   mountIFrame() {
     const t = `${this.appUrl}/api/v1/reset-password`;
     this.module.showPasswordForgotForm({
@@ -105,7 +107,7 @@ class u extends n {
       fallbackTargetUrl: t,
       fallbackButtonText: "Send password reset email!",
       cssUrl: this.cssUrl,
-      onSuccess: (e) => this.showSuccess(e),
+      onSuccess: (e) => this.handleSuccess(e),
       onError: (e) => this.handleError(e)
     });
   }
@@ -113,7 +115,7 @@ class u extends n {
     return "px-user-forgot-password";
   }
 }
-class l extends n {
+class u extends n {
   mountIFrame() {
     const t = `${this.appUrl}/api/v1/set-password`;
     this.module.showPasswordSetForm({
@@ -129,7 +131,7 @@ class l extends n {
         }
       },
       showPasswordRules: !0,
-      onSuccess: (e) => this.showSuccess(e),
+      onSuccess: (e) => this.handleSuccess(e),
       onError: (e) => this.handleError(e)
     });
   }
@@ -166,7 +168,7 @@ class h extends n {
     }));
   }
 }
-class m extends n {
+class g extends n {
   mountIFrame() {
     const t = `${this.appUrl}/api/v1/activation-code`;
     this.module.showActivateUserByActivationCodeForm({
@@ -176,19 +178,24 @@ class m extends n {
       fallbackTargetUrl: t,
       fallbackButtonText: "Activate User",
       cssUrl: this.cssUrl,
-      onSuccess: (e) => this.showSuccess(e),
+      onSuccess: (e) => this.login(e),
       onError: (e) => this.handleError(e),
-      onSuccessActivationCode: (e) => this.showSuccess(e),
+      onSuccessActivationCode: (e) => this.handleSuccess(e, !1),
       onErrorActivationCode: (e) => this.handleError(e)
     });
   }
   getContainerId() {
     return "px-user-activate-user-with-activation-code";
   }
+  login(t) {
+    window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
+      detail: t.response
+    }));
+  }
 }
 customElements.get("px-user-login") === void 0 && customElements.define("px-user-login", c);
 customElements.get("px-user-activate-user") === void 0 && customElements.define("px-user-activate-user", d);
-customElements.get("px-user-forgot-password") === void 0 && customElements.define("px-user-forgot-password", u);
-customElements.get("px-user-set-password") === void 0 && customElements.define("px-user-set-password", l);
+customElements.get("px-user-forgot-password") === void 0 && customElements.define("px-user-forgot-password", l);
+customElements.get("px-user-set-password") === void 0 && customElements.define("px-user-set-password", u);
 customElements.get("px-user-activate-user-and-login") === void 0 && customElements.define("px-user-activate-user-and-login", h);
-customElements.get("px-user-activate-user-with-activation-code") === void 0 && customElements.define("px-user-activate-user-with-activation-code", m);
+customElements.get("px-user-activate-user-with-activation-code") === void 0 && customElements.define("px-user-activate-user-with-activation-code", g);

@@ -76,17 +76,24 @@ export class UserComponent extends HTMLElement {
      * Success handler
      *
      * @param data
+     * @param remove
      */
-    showSuccess(data) {
+    handleSuccess(data, removeIFrame = true) {
         if (data.success) {
             // remove iframe
-            document.querySelector(`#${this.containerId} .px-user-widget`).remove();
+            if (removeIFrame) {
+                document.querySelector(`#${this.containerId} .px-user-widget`).remove();
+            }
 
             // set our success message
             const successMessage = document.querySelector(`#${this.containerId}-success`);
             successMessage.classList.add('success-message');
             successMessage.textContent = data.message;
             successMessage.classList.add('mb-2');
+
+            window.dispatchEvent(new CustomEvent('px-user-success', {
+                detail: data,
+            }));
         }
     }
 

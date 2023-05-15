@@ -12,7 +12,7 @@ export class PxUserForgotPassword extends UserComponent {
             fallbackTargetUrl,
             fallbackButtonText: 'Send password reset email!',
             cssUrl: this.cssUrl,
-            onSuccess: (response) => this.showSuccess(response),
+            onSuccess: (response) => this.handleSuccess(response),
             onError: (error) => this.handleError(error),
         });
     }

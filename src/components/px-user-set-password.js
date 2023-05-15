@@ -20,7 +20,7 @@ export class PxUserSetPassword extends UserComponent {
                 }
             },
             showPasswordRules: true,
-            onSuccess: (response) => this.showSuccess(response),
+            onSuccess: (response) => this.handleSuccess(response),
             onError: (error) => this.handleError(error),
         });
     }
