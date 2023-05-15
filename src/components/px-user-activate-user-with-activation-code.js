@@ -36,10 +36,10 @@ export class PxUserActivateUserWithActivationCode extends UserComponent {
      * @param response
      */
     activated(response) {
-        this.handleSuccess(response); // remove iframe now
-
         window.dispatchEvent(new CustomEvent('px-user-activated', {
             detail: response.response
         }));
+
+        this.handleSuccess(response); // remove iframe now
     }
 }

@@ -193,9 +193,9 @@ class m extends n {
     return "px-user-activate-user-with-activation-code";
   }
   activated(t) {
-    this.handleSuccess(t), window.dispatchEvent(new CustomEvent("px-user-activated", {
+    window.dispatchEvent(new CustomEvent("px-user-activated", {
       detail: t.response
-    }));
+    })), this.handleSuccess(t);
   }
 }
 customElements.get("px-user-login") === void 0 && customElements.define("px-user-login", c);
