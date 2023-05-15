@@ -59,6 +59,17 @@ export class UserComponent extends HTMLElement {
         console.warn('Either set attribute "data-container-id" on element or override "getContainerId" inside your class');
     }
 
+    resetMessages() {
+        const errorMessage = document.querySelector(`#${this.containerId}-error`);
+        const successMessage = document.querySelector(`#${this.containerId}-success`);
+
+        errorMessage.textContent = '';
+        errorMessage.classList.remove('error-message', 'mb-2');
+
+        successMessage.textContent = '';
+        successMessage.classList.remove('success-message', 'mb-2');
+    }
+
     /**
      * Error handler
      * Shows error message in notification
@@ -66,8 +77,12 @@ export class UserComponent extends HTMLElement {
      * @param error
      */
     handleError(error) {
+        this.resetMessages();
+
         const errorMessage = document.querySelector(`#${this.containerId}-error`);
         errorMessage.textContent = error.message;
+
+        // TODO why are we adding classes here?
         errorMessage.classList.add('error-message');
         errorMessage.classList.add('mb-2');
     }
@@ -79,6 +94,8 @@ export class UserComponent extends HTMLElement {
      * @param remove
      */
     handleSuccess(data, removeIFrame = true) {
+        this.resetMessages();
+
         if (data.success) {
             // remove iframe
             if (removeIFrame) {
@@ -87,8 +104,10 @@ export class UserComponent extends HTMLElement {
 
             // set our success message
             const successMessage = document.querySelector(`#${this.containerId}-success`);
-            successMessage.classList.add('success-message');
             successMessage.textContent = data.message;
+
+            // TODO why are we adding classes here?
+            successMessage.classList.add('success-message');
             successMessage.classList.add('mb-2');
 
             window.dispatchEvent(new CustomEvent('px-user-success', {

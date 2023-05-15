@@ -26,15 +26,20 @@ class n extends HTMLElement {
   getContainerId() {
     console.warn('Either set attribute "data-container-id" on element or override "getContainerId" inside your class');
   }
+  resetMessages() {
+    const t = document.querySelector(`#${this.containerId}-error`), e = document.querySelector(`#${this.containerId}-success`);
+    t.textContent = "", t.classList.remove("error-message", "mb-2"), e.textContent = "", e.classList.remove("success-message", "mb-2");
+  }
   handleError(t) {
+    this.resetMessages();
     const e = document.querySelector(`#${this.containerId}-error`);
     e.textContent = t.message, e.classList.add("error-message"), e.classList.add("mb-2");
   }
   handleSuccess(t, e = !0) {
-    if (t.success) {
+    if (this.resetMessages(), t.success) {
       e && document.querySelector(`#${this.containerId} .px-user-widget`).remove();
       const s = document.querySelector(`#${this.containerId}-success`);
-      s.classList.add("success-message"), s.textContent = t.message, s.classList.add("mb-2"), window.dispatchEvent(new CustomEvent("px-user-success", {
+      s.textContent = t.message, s.classList.add("success-message"), s.classList.add("mb-2"), window.dispatchEvent(new CustomEvent("px-user-success", {
         detail: t
       }));
     }
@@ -99,7 +104,7 @@ class d extends n {
     return "px-user-activate-user";
   }
 }
-class l extends n {
+class u extends n {
   mountIFrame() {
     const t = `${this.appUrl}/api/v1/reset-password`;
     this.module.showPasswordForgotForm({
@@ -115,7 +120,7 @@ class l extends n {
     return "px-user-forgot-password";
   }
 }
-class u extends n {
+class l extends n {
   mountIFrame() {
     const t = `${this.appUrl}/api/v1/set-password`;
     this.module.showPasswordSetForm({
@@ -168,7 +173,7 @@ class h extends n {
     }));
   }
 }
-class g extends n {
+class m extends n {
   mountIFrame() {
     const t = `${this.appUrl}/api/v1/activation-code`;
     this.module.showActivateUserByActivationCodeForm({
@@ -178,7 +183,7 @@ class g extends n {
       fallbackTargetUrl: t,
       fallbackButtonText: "Activate User",
       cssUrl: this.cssUrl,
-      onSuccess: (e) => this.login(e),
+      onSuccess: (e) => this.activated(e),
       onError: (e) => this.handleError(e),
       onSuccessActivationCode: (e) => this.handleSuccess(e, !1),
       onErrorActivationCode: (e) => this.handleError(e)
@@ -187,15 +192,15 @@ class g extends n {
   getContainerId() {
     return "px-user-activate-user-with-activation-code";
   }
-  login(t) {
-    window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
+  activated(t) {
+    this.handleSuccess(t), window.dispatchEvent(new CustomEvent("px-user-activated", {
       detail: t.response
     }));
   }
 }
 customElements.get("px-user-login") === void 0 && customElements.define("px-user-login", c);
 customElements.get("px-user-activate-user") === void 0 && customElements.define("px-user-activate-user", d);
-customElements.get("px-user-forgot-password") === void 0 && customElements.define("px-user-forgot-password", l);
-customElements.get("px-user-set-password") === void 0 && customElements.define("px-user-set-password", u);
+customElements.get("px-user-forgot-password") === void 0 && customElements.define("px-user-forgot-password", u);
+customElements.get("px-user-set-password") === void 0 && customElements.define("px-user-set-password", l);
 customElements.get("px-user-activate-user-and-login") === void 0 && customElements.define("px-user-activate-user-and-login", h);
-customElements.get("px-user-activate-user-with-activation-code") === void 0 && customElements.define("px-user-activate-user-with-activation-code", g);
+customElements.get("px-user-activate-user-with-activation-code") === void 0 && customElements.define("px-user-activate-user-with-activation-code", m);

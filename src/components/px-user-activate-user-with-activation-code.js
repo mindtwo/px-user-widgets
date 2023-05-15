@@ -14,7 +14,7 @@ export class PxUserActivateUserWithActivationCode extends UserComponent {
             fallbackTargetUrl,
             fallbackButtonText: 'Activate User',
             cssUrl: this.cssUrl,
-            onSuccess: (response) => this.login(response),
+            onSuccess: (response) => this.activated(response),
             onError: (error) => this.handleError(error),
             onSuccessActivationCode: (response) => this.handleSuccess(response, false),
             onErrorActivationCode: (error) => this.handleError(error),
@@ -30,13 +30,15 @@ export class PxUserActivateUserWithActivationCode extends UserComponent {
         return 'px-user-activate-user-with-activation-code';
     }
 
-        /**
+    /**
      * Login user on success
      *
      * @param response
      */
-    login(response) {
-        window.dispatchEvent(new CustomEvent('px-user-loggedIn', {
+    activated(response) {
+        this.handleSuccess(response); // remove iframe now
+
+        window.dispatchEvent(new CustomEvent('px-user-activated', {
             detail: response.response
         }));
     }
