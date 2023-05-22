@@ -214,12 +214,17 @@ class m extends o {
         }
       },
       showPasswordRules: !0,
-      onSuccess: (e) => this.handleSuccess(e),
+      onSuccess: (e) => this.login(e),
       onError: (e) => this.handleError(e)
     });
   }
   getContainerId() {
     return "px-user-set-password-by-forgot-password-code-and-login";
+  }
+  login(s) {
+    window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
+      detail: s.response
+    }));
   }
 }
 customElements.get("px-user-login") === void 0 && customElements.define("px-user-login", c);
