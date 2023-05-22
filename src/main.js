@@ -2,9 +2,9 @@ import {PxUserLogin} from './components/px-user-login';
 import {PxUserActivateUser} from './components/px-user-activate-user';
 import {PxUserForgotPassword} from './components/px-user-forgot-password';
 import {PxUserSetPassword} from './components/px-user-set-password';
-import {PxUserAdminLogin} from './components/px-user-admin-login';
 import {PxUserActivateUserAndLogin} from './components/px-user-activate-user-and-login';
 import {PxUserActivateUserWithActivationCode} from './components/px-user-activate-user-with-activation-code';
+import {PxUserSetPasswordByForgotPasswordCodeAndLogin} from './components/px-user-set-password-by-forgot-password-code-and-login';
 
 // check if element exists and register if not
 if(customElements.get('px-user-login') === undefined) {
@@ -34,4 +34,8 @@ if(customElements.get('px-user-activate-user-and-login') === undefined) {
 // check if element exists and register if not
 if(customElements.get('px-user-activate-user-with-activation-code') === undefined) {
     customElements.define('px-user-activate-user-with-activation-code', PxUserActivateUserWithActivationCode);
+}
+
+if (customElements.get('px-user-set-password-by-forgot-password-code-and-login') === undefined) {
+    customElements.define('px-user-set-password-by-forgot-password-code-and-login', PxUserSetPasswordByForgotPasswordCodeAndLogin);
 }
