@@ -20,7 +20,7 @@ export class PxUserSetPasswordByForgotPasswordCodeAndLogin extends UserComponent
                 }
             },
             showPasswordRules: true,
-            onSuccess: (response) => this.handleSuccess(response),
+            onSuccess: (response) => this.login(response),
             onError: (error) => this.handleError(error),
         });
     }
@@ -32,5 +32,16 @@ export class PxUserSetPasswordByForgotPasswordCodeAndLogin extends UserComponent
      */
      getContainerId() {
         return 'px-user-set-password-by-forgot-password-code-and-login';
+    }
+
+    /**
+     * Login user on success
+     *
+     * @param response
+     */
+    login(response) {
+        window.dispatchEvent(new CustomEvent('px-user-loggedIn', {
+            detail: response.response
+        }));
     }
 }
