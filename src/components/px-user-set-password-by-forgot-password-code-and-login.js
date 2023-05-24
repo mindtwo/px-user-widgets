@@ -7,6 +7,8 @@ export class PxUserSetPasswordByForgotPasswordCodeAndLogin extends UserComponent
     mountIFrame() {
         const fallbackTargetUrl = `${this.appUrl}/api/v1/set-password`;
 
+        console.log('fallbackTargetUrl', fallbackTargetUrl);
+
         this.module.showPasswordSetByForgotPasswordCodeLoginForm({
             token: this.token,
             containerElement: this.containerId,
