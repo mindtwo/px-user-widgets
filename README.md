@@ -53,7 +53,6 @@ The value for container id should be a unique DOM-Element id on your page. The p
 
 <px-user-set-password />
 
-<px-user-admin-login />
 ```
 
 ### Element Attributes

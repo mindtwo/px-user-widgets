@@ -1,28 +1,19 @@
 import {UserComponent} from './user-component';
 
 export class PxUserForgotPassword extends UserComponent {
-    /**
-     * Mount iframe
-     */
-    mountIFrame() {
-        const fallbackTargetUrl = `${this.appUrl}/api/v1/reset-password`;
 
-        this.module.showPasswordForgotForm({
-            containerElement: this.containerId,
-            fallbackTargetUrl,
+    get config() {
+        return {
+            ...super.config,
             fallbackButtonText: 'Send password reset email!',
-            cssUrl: this.cssUrl,
-            onSuccess: (response) => this.handleSuccess(response),
-            onError: (error) => this.handleError(error),
-        });
+        }
     }
 
-    /**
-     * Get container fallback id
-     *
-     * @returns {String}
-     */
-     getContainerId() {
-        return 'px-user-forgot-password';
+    get widget() {
+        return 'showPasswordForgotForm';
+    }
+
+    get fallbackTarget() {
+        return 'api/v1/reset-password';
     }
 }

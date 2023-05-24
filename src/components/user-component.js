@@ -1,10 +1,12 @@
+import { parseHtml } from '../helper/parse-html';
+
 export class UserComponent extends HTMLElement {
     constructor() {
         super();
     }
 
     getAttrValues() {
-        this.containerId = this.getAttribute('data-containerId') ?? this.getContainerId();
+        this.containerId = this.getAttribute('data-containerId') ?? this.widget;
         this.token = this.getAttribute('data-token');
         this.appUrl = this.getAttribute('data-app-url');
         this.language = this.getAttribute('data-language');
@@ -26,48 +28,25 @@ export class UserComponent extends HTMLElement {
         this.getAttrValues();
 
         // create wrapper to mount iframe
-        const wrapper = document.createElement('div');
-        wrapper.id = this.containerId;
-        wrapper.classList.add('user-component');
+        const wrapper = parseHtml(`<div id="${this.containerId}" class="user-component"></div>`);
 
         this.append(wrapper);
 
-        const errorMessage = document.createElement('span');
-        errorMessage.id = `${this.containerId}-error`;
-        wrapper.append(errorMessage);
+        this.errorMessageElem = parseHtml(`<span id="${this.containerId}-error" class="error-message" style="display: none;"></span>`);
+        wrapper.append(this.errorMessageElem);
 
-        const successMessage = document.createElement('span');
-        successMessage.id = `${this.containerId}-success`;
-        wrapper.append(successMessage);
+        this.successMessageElem = parseHtml(`<span id="${this.containerId}-success" class="success-message" style="display: none;"></span>`);
+        wrapper.append(this.successMessageElem);
 
-        this.mountIFrame();
+        this.module[`${this.widget}`](this.config);
     }
 
     /**
-     * Mount iframe to our wrapper element.
-     * This should use a the function from PxUserModule
+     * Reset messages to empty string
      */
-    mountIFrame() {
-        console.warn('Override mountIFrame inside your class');
-    }
-
-    /**
-     * Mount iframe to our wrapper element.
-     * This should use a the function from PxUserModule
-     */
-    getContainerId() {
-        console.warn('Either set attribute "data-container-id" on element or override "getContainerId" inside your class');
-    }
-
     resetMessages() {
-        const errorMessage = document.querySelector(`#${this.containerId}-error`);
-        const successMessage = document.querySelector(`#${this.containerId}-success`);
-
-        errorMessage.textContent = '';
-        errorMessage.classList.remove('error-message', 'mb-2');
-
-        successMessage.textContent = '';
-        successMessage.classList.remove('success-message', 'mb-2');
+        this.errorMessage = '';
+        this.successMessage = '';
     }
 
     /**
@@ -79,12 +58,7 @@ export class UserComponent extends HTMLElement {
     handleError(error) {
         this.resetMessages();
 
-        const errorMessage = document.querySelector(`#${this.containerId}-error`);
-        errorMessage.textContent = error.message;
-
-        // TODO why are we adding classes here?
-        errorMessage.classList.add('error-message');
-        errorMessage.classList.add('mb-2');
+        this.errorMessage = error.message;
     }
 
     /**
@@ -103,12 +77,7 @@ export class UserComponent extends HTMLElement {
             }
 
             // set our success message
-            const successMessage = document.querySelector(`#${this.containerId}-success`);
-            successMessage.textContent = data.message;
-
-            // TODO why are we adding classes here?
-            successMessage.classList.add('success-message');
-            successMessage.classList.add('mb-2');
+            this.successMessage = data.message;
 
             window.dispatchEvent(new CustomEvent('px-user-success', {
                 detail: data,
@@ -117,17 +86,30 @@ export class UserComponent extends HTMLElement {
     }
 
     /**
-     * Get request headers for internal and external requests
-     * @returns {Object}
+     * Get the fallback target url
+     * @returns {string}
      */
-    get headers() {
-        const base = {
-            'Content-Type': 'application/json',
-        };
-
-        return base;
+    getFallbackTargetUrl() {
+        return this.fallbackTarget.startsWith('/') ?  `${this.appUrl}${this.fallbackTarget}` : `${this.appUrl}/${this.fallbackTarget}`;
     }
 
+    set errorMessage(message) {
+        if (!this.errorMessageElem) {
+            return;
+        }
+        this.errorMessageElem.textContent = message;
+    }
+
+    set successMessage(message) {
+        if (!this.successMessageElem) {
+            return;
+        }
+        this.successMessageElem.textContent = message;
+    }
+
+    /**
+     * Get css url
+     */
     get cssUrl() {
         if(this.cssPath.startsWith('http://') || this.cssPath.startsWith('https://') || this.cssPath.startsWith('//')) {
             return this.cssPath;
@@ -137,21 +119,30 @@ export class UserComponent extends HTMLElement {
     }
 
     /**
-     * Send request to backend
-     *
-     * @param url
-     * @param data
-     * @returns {Promise<Response>}
+     * Get widget which we want to mount
      */
-    request(url, data = null) {
-        const method = data ? 'POST' : 'GET';
+    get widget() {
+        throw new Error('Override widget getter in your class');
+    }
 
-        return fetch(url, {
-            method,
-            redirect: 'follow',
-            // credentials: 'include',
-            headers: this.headers,
-            body: JSON.stringify(data),
-        });
+    /**
+     * Get fallbackTargetPath
+     */
+    get fallbackTarget() {
+        throw new Error('Override fallbackTarget getter in your class');
+    }
+
+    /**
+     * Get config. When overriding this, make sure to merge the config with the super.config
+     */
+    get config() {
+        return {
+            containerElement: this.containerId,
+            cssUrl: this.cssUrl,
+            fallbackTargetUrl: this.getFallbackTargetUrl(),
+
+            onSuccess: (response) => this.handleSuccess(response),
+            onError: (error) => this.handleError(error),
+        };
     }
 }
