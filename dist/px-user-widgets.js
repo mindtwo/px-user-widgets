@@ -90,7 +90,7 @@ class c extends o {
 class d extends o {
   mountIFrame() {
     const s = `${this.appUrl}/api/v1/doi-activation`;
-    this.module.showActivateUserForm({
+    console.log("fallbackTargetUrl", s), this.module.showActivateUserForm({
       token: this.token,
       containerElement: this.containerId,
       fallbackButtonText: "Set Password!",
@@ -107,7 +107,7 @@ class d extends o {
 class l extends o {
   mountIFrame() {
     const s = `${this.appUrl}/api/v1/reset-password`;
-    this.module.showPasswordForgotForm({
+    console.log("fallbackTargetUrl", s), this.module.showPasswordForgotForm({
       containerElement: this.containerId,
       fallbackTargetUrl: s,
       fallbackButtonText: "Send password reset email!",
@@ -147,7 +147,7 @@ class u extends o {
 class h extends o {
   mountIFrame() {
     const s = `${this.appUrl}/api/v1/activate-user-and-login`;
-    this.module.showActivateUserLoginForm({
+    console.log("fallbackTargetUrl", s), this.module.showActivateUserLoginForm({
       token: this.token,
       showPasswordRules: !0,
       containerElement: this.containerId,
@@ -176,7 +176,7 @@ class h extends o {
 class g extends o {
   mountIFrame() {
     const s = `${this.appUrl}/api/v1/activation-code`;
-    this.module.showActivateUserByActivationCodeForm({
+    console.log("fallbackTargetUrl", s), this.module.showActivateUserByActivationCodeForm({
       token: this.token,
       showPasswordRules: !0,
       containerElement: this.containerId,
@@ -201,7 +201,7 @@ class g extends o {
 class m extends o {
   mountIFrame() {
     const s = `${this.appUrl}/api/v1/set-password`;
-    this.module.showPasswordSetByForgotPasswordCodeLoginForm({
+    console.log("fallbackTargetUrl", s), this.module.showPasswordSetByForgotPasswordCodeLoginForm({
       token: this.token,
       containerElement: this.containerId,
       fallbackTargetUrl: s,
