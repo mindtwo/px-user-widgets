@@ -7,8 +7,6 @@ export class PxUserAdminLogin extends UserComponent {
     mountIFrame() {
         const fallbackTargetUrl = `${this.appUrl}/api/v1/admin/login`;
 
-        console.log('fallbackTargetUrl', fallbackTargetUrl);
-
         this.module.showLoginForm({
             containerElement: this.containerId,
             fallbackTargetUrl,

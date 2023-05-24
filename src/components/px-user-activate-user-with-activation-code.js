@@ -7,8 +7,6 @@ export class PxUserActivateUserWithActivationCode extends UserComponent {
     mountIFrame() {
         const fallbackTargetUrl = `${this.appUrl}/api/v1/activation-code`;
 
-        console.log('fallbackTargetUrl', fallbackTargetUrl);
-
         this.module.showActivateUserByActivationCodeForm({
             token: this.token,
             showPasswordRules: true,

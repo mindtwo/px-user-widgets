@@ -7,8 +7,6 @@ export class PxUserActivateUserAndLogin extends UserComponent {
     mountIFrame() {
         const fallbackTargetUrl = `${this.appUrl}/api/v1/activate-user-and-login`;
 
-        console.log('fallbackTargetUrl', fallbackTargetUrl);
-
         this.module.showActivateUserLoginForm({
             token: this.token,
             showPasswordRules: true,

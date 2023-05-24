@@ -7,8 +7,6 @@ export class PxUserActivateUser extends UserComponent {
     mountIFrame() {
         const fallbackTargetUrl = `${this.appUrl}/api/v1/doi-activation`;
 
-        console.log('fallbackTargetUrl', fallbackTargetUrl);
-
         this.module.showActivateUserForm({
             token: this.token,
             containerElement: this.containerId,
