@@ -7,7 +7,7 @@ export class PxUserAdminLogin extends UserComponent {
     mountIFrame() {
         const fallbackTargetUrl = `${this.appUrl}/api/v1/admin/login`;
 
-        this.module.showLoginForm({
+        const conf = {
             containerElement: this.containerId,
             fallbackTargetUrl,
             fallbackButtonText: 'Login!',
@@ -18,8 +18,14 @@ export class PxUserAdminLogin extends UserComponent {
             },
             cssUrl: this.cssUrl,
             onSuccess: (response) => this.login(response),
-            onError: (error) => this.handleError(error),
-        });
+            onError: (response) => this.handleError(response),
+        };
+
+        if (Object.keys(this.labels).length > 0) {
+            conf.labels = this.labels;
+        }
+
+        this.module.showLoginForm(conf);
     }
 
     /**

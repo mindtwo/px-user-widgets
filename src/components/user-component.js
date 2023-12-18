@@ -11,6 +11,8 @@ export class UserComponent extends HTMLElement {
 
         this.cssPath = this.getAttribute('data-css-path') ?? 'storage/assets/css/px-user.css';
 
+        this.labels = JSON.parse(this.getAttribute('data-labels')) ?? {};
+
         this.module = new PxModUser({
             stage: this.getAttribute('stage') ?? window.PX_USER_STAGE,
             domain: this.getAttribute('domain') ?? window.PX_USER_DOMAIN,
