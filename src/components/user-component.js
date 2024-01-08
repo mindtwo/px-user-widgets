@@ -1,3 +1,5 @@
+import { parseHtml } from '../helper';
+
 export class UserComponent extends HTMLElement {
     constructor() {
         super();
@@ -28,21 +30,22 @@ export class UserComponent extends HTMLElement {
         this.getAttrValues();
 
         // create wrapper to mount iframe
-        const wrapper = document.createElement('div');
-        wrapper.id = this.containerId;
-        wrapper.classList.add('user-component');
-
+        const wrapper = parseHtml(`<div id="${this.containerId}" class="user-component"></div>`);
         this.append(wrapper);
 
-        const errorMessage = document.createElement('span');
-        errorMessage.id = `${this.containerId}-error`;
-        wrapper.append(errorMessage);
-
-        const successMessage = document.createElement('span');
-        successMessage.id = `${this.containerId}-success`;
-        wrapper.append(successMessage);
-
         this.mountIFrame();
+
+        // create error message element
+        const errorMessageElem = parseHtml(`<span id="${this.containerId}-error" class="error-message mb-2" style="display: none;"></span>`);
+        wrapper.append(errorMessageElem);
+
+        this.errorMessageElem = errorMessageElem;
+
+        // create success message element
+        const successMessageElem = parseHtml(`<span id="${this.containerId}-success" class="success-message mb-2" style="display: none;"></span>`);
+        wrapper.append(successMessageElem);
+
+        this.successMessageElem = successMessageElem;
     }
 
     /**
@@ -62,14 +65,11 @@ export class UserComponent extends HTMLElement {
     }
 
     resetMessages() {
-        const errorMessage = document.querySelector(`#${this.containerId}-error`);
-        const successMessage = document.querySelector(`#${this.containerId}-success`);
+        this.successMessageElem.textContent = '';
+        this.errorMessageElem.textContent = '';
 
-        errorMessage.textContent = '';
-        errorMessage.classList.remove('error-message', 'mb-2');
-
-        successMessage.textContent = '';
-        successMessage.classList.remove('success-message', 'mb-2');
+        this.successMessageElem.style.display = 'none';
+        this.errorMessageElem.style.display = 'none';
     }
 
     /**
@@ -81,12 +81,8 @@ export class UserComponent extends HTMLElement {
     handleError(error) {
         this.resetMessages();
 
-        const errorMessage = document.querySelector(`#${this.containerId}-error`);
-        errorMessage.textContent = error.message;
-
-        // TODO why are we adding classes here?
-        errorMessage.classList.add('error-message');
-        errorMessage.classList.add('mb-2');
+        this.errorMessageElem.textContent = error.message;
+        this.errorMessageElem.style.display = 'block';
     }
 
     /**
@@ -105,29 +101,13 @@ export class UserComponent extends HTMLElement {
             }
 
             // set our success message
-            const successMessage = document.querySelector(`#${this.containerId}-success`);
-            successMessage.textContent = data.message;
-
-            // TODO why are we adding classes here?
-            successMessage.classList.add('success-message');
-            successMessage.classList.add('mb-2');
+            this.successMessageElem.textContent = data.message;
+            this.successMessageElem.style.display = 'block';
 
             window.dispatchEvent(new CustomEvent('px-user-success', {
                 detail: data,
             }));
         }
-    }
-
-    /**
-     * Get request headers for internal and external requests
-     * @returns {Object}
-     */
-    get headers() {
-        const base = {
-            'Content-Type': 'application/json',
-        };
-
-        return base;
     }
 
     get cssUrl() {
@@ -136,24 +116,5 @@ export class UserComponent extends HTMLElement {
         }
 
         return `${this.appUrl}/${this.cssPath}`;
-    }
-
-    /**
-     * Send request to backend
-     *
-     * @param url
-     * @param data
-     * @returns {Promise<Response>}
-     */
-    request(url, data = null) {
-        const method = data ? 'POST' : 'GET';
-
-        return fetch(url, {
-            method,
-            redirect: 'follow',
-            // credentials: 'include',
-            headers: this.headers,
-            body: JSON.stringify(data),
-        });
     }
 }

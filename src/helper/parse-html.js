@@ -5,13 +5,12 @@
  * @returns
  */
 const parseHtml = (htmlString) => {
+    const dom = new DOMParser().parseFromString(htmlString, 'text/html');
 
-    const template = document.createElement('template');
-    template.innerHTML = htmlString.trim();
-
-    return template.content;
+    return dom.body.firstChild;
 }
 
 export {
     parseHtml,
+    // parse,
 };

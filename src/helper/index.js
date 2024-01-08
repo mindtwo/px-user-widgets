@@ -1,5 +1,5 @@
-import { parseHtml } from "./parse-html";
+import { parseHtml, parse } from "./parse-html";
 
 export {
-    parseHtml,
+    parseHtml, parse,
 };

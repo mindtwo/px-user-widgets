@@ -1,1 +1,269 @@
-(function(r){typeof define=="function"&&define.amd?define(r):r()})(function(){"use strict";class r extends HTMLElement{constructor(){super()}getAttrValues(){var s,e,t,o,a,i,c;this.containerId=(s=this.getAttribute("data-containerId"))!=null?s:this.getContainerId(),this.token=this.getAttribute("data-token"),this.appUrl=this.getAttribute("data-app-url"),this.language=this.getAttribute("data-language"),this.cssPath=(e=this.getAttribute("data-css-path"))!=null?e:"storage/assets/css/px-user.css",this.labels=(t=JSON.parse(this.getAttribute("data-labels")))!=null?t:{},this.module=new PxModUser({stage:(o=this.getAttribute("stage"))!=null?o:window.PX_USER_STAGE,domain:(a=this.getAttribute("domain"))!=null?a:window.PX_USER_DOMAIN,tenant:(i=this.getAttribute("tenant"))!=null?i:window.PX_USER_TENANT,language:(c=this.language)!=null?c:"de"})}connectedCallback(){this.getAttrValues();const s=document.createElement("div");s.id=this.containerId,s.classList.add("user-component"),this.append(s);const e=document.createElement("span");e.id=`${this.containerId}-error`,s.append(e);const t=document.createElement("span");t.id=`${this.containerId}-success`,s.append(t),this.mountIFrame()}mountIFrame(){console.warn("Override mountIFrame inside your class")}getContainerId(){console.warn('Either set attribute "data-container-id" on element or override "getContainerId" inside your class')}resetMessages(){const s=document.querySelector(`#${this.containerId}-error`),e=document.querySelector(`#${this.containerId}-success`);s.textContent="",s.classList.remove("error-message","mb-2"),e.textContent="",e.classList.remove("success-message","mb-2")}handleError(s){this.resetMessages();const e=document.querySelector(`#${this.containerId}-error`);e.textContent=s.message,e.classList.add("error-message"),e.classList.add("mb-2")}handleSuccess(s,e=!0){if(this.resetMessages(),s.success){e&&document.querySelector(`#${this.containerId} .px-user-widget`).remove();const t=document.querySelector(`#${this.containerId}-success`);t.textContent=s.message,t.classList.add("success-message"),t.classList.add("mb-2"),window.dispatchEvent(new CustomEvent("px-user-success",{detail:s}))}}get headers(){return{"Content-Type":"application/json"}}get cssUrl(){return this.cssPath.startsWith("http://")||this.cssPath.startsWith("https://")||this.cssPath.startsWith("//")?this.cssPath:`${this.appUrl}/${this.cssPath}`}request(s,e=null){return fetch(s,{method:e?"POST":"GET",redirect:"follow",headers:this.headers,body:JSON.stringify(e)})}}class d extends r{mountIFrame(){const s=`${this.appUrl}/api/v2/login`,e={containerElement:this.containerId,fallbackTargetUrl:s,fallbackButtonText:"Login!",icons:{togglePassword:{password:!0}},cssUrl:this.cssUrl,onSuccess:t=>this.login(t),onError:t=>this.handleError(t)};Object.keys(this.labels).length>0&&(e.labels=this.labels),this.module.showLoginForm(e)}getContainerId(){return"px-user-login"}login(s){window.dispatchEvent(new CustomEvent("px-user-loggedIn",{detail:s.response}))}}class l extends r{mountIFrame(){const s=`${this.appUrl}/api/v1/doi-activation`;this.module.showActivateUserForm({token:this.token,containerElement:this.containerId,fallbackButtonText:"Set Password!",fallbackTargetUrl:s,cssUrl:this.cssUrl,onSuccess:e=>this.handleSuccess(e),onError:e=>this.handleError(e)})}getContainerId(){return"px-user-activate-user"}}class u extends r{mountIFrame(){const s=`${this.appUrl}/api/v1/reset-password`;this.module.showPasswordForgotForm({containerElement:this.containerId,fallbackTargetUrl:s,fallbackButtonText:"Send password reset email!",cssUrl:this.cssUrl,onSuccess:e=>this.handleSuccess(e),onError:e=>this.handleError(e)})}getContainerId(){return"px-user-forgot-password"}}class h extends r{mountIFrame(){const s=`${this.appUrl}/api/v1/set-password`;this.module.showPasswordSetForm({token:this.token,containerElement:this.containerId,fallbackTargetUrl:s,fallbackButtonText:"Reset Password!",cssUrl:this.cssUrl,icons:{togglePassword:{passwordOne:!0,passwordTwo:!0}},showPasswordRules:!0,onSuccess:e=>this.handleSuccess(e),onError:e=>this.handleError(e)})}getContainerId(){return"px-user-set-password"}}class g extends r{mountIFrame(){const s=`${this.appUrl}/api/v1/activate-user-and-login`;this.module.showActivateUserLoginForm({token:this.token,showPasswordRules:!0,containerElement:this.containerId,fallbackTargetUrl:s,fallbackButtonText:"Activate user and login!",cssUrl:this.cssUrl,icons:{togglePassword:{passwordOne:!0,passwordTwo:!0}},onSuccess:e=>this.login(e),onError:e=>this.handleError(e)})}getContainerId(){return"px-user-activate-user-and-login"}login(s){window.dispatchEvent(new CustomEvent("px-user-loggedIn",{detail:s.response}))}}class m extends r{mountIFrame(){const s=`${this.appUrl}/api/v1/activation-code`;this.module.showActivateUserByActivationCodeForm({token:this.token,showPasswordRules:!0,containerElement:this.containerId,fallbackTargetUrl:s,fallbackButtonText:"Activate User",cssUrl:this.cssUrl,onSuccess:e=>this.activated(e),onError:e=>this.handleError(e),onSuccessActivationCode:e=>this.handleSuccess(e,!1),onErrorActivationCode:e=>this.handleError(e)})}getContainerId(){return"px-user-activate-user-with-activation-code"}activated(s){window.dispatchEvent(new CustomEvent("px-user-activated",{detail:s.response})),this.handleSuccess(s)}}class p extends r{mountIFrame(){const s=`${this.appUrl}/api/v1/set-password`;this.module.showPasswordSetByForgotPasswordCodeLoginForm({token:this.token,containerElement:this.containerId,fallbackTargetUrl:s,fallbackButtonText:"Reset Password!",cssUrl:this.cssUrl,icons:{togglePassword:{passwordOne:!0,passwordTwo:!0}},showPasswordRules:!0,onSuccess:e=>this.login(e),onError:e=>this.handleError(e)})}getContainerId(){return"px-user-set-password-by-forgot-password-code-and-login"}login(s){window.dispatchEvent(new CustomEvent("px-user-loggedIn",{detail:s.response}))}}customElements.get("px-user-login")===void 0&&customElements.define("px-user-login",d),customElements.get("px-user-activate-user")===void 0&&customElements.define("px-user-activate-user",l),customElements.get("px-user-forgot-password")===void 0&&customElements.define("px-user-forgot-password",u),customElements.get("px-user-set-password")===void 0&&customElements.define("px-user-set-password",h),customElements.get("px-user-activate-user-and-login")===void 0&&customElements.define("px-user-activate-user-and-login",g),customElements.get("px-user-activate-user-with-activation-code")===void 0&&customElements.define("px-user-activate-user-with-activation-code",m),customElements.get("px-user-set-password-by-forgot-password-code-and-login")===void 0&&customElements.define("px-user-set-password-by-forgot-password-code-and-login",p)});
+(function(factory) {
+  typeof define === "function" && define.amd ? define(factory) : factory();
+})(function() {
+  "use strict";
+  const parseHtml = (htmlString) => {
+    const dom = new DOMParser().parseFromString(htmlString, "text/html");
+    return dom.body.firstChild;
+  };
+  class UserComponent extends HTMLElement {
+    constructor() {
+      super();
+    }
+    getAttrValues() {
+      var _a, _b, _c, _d, _e, _f, _g;
+      this.containerId = (_a = this.getAttribute("data-containerId")) != null ? _a : this.getContainerId();
+      this.token = this.getAttribute("data-token");
+      this.appUrl = this.getAttribute("data-app-url");
+      this.language = this.getAttribute("data-language");
+      this.cssPath = (_b = this.getAttribute("data-css-path")) != null ? _b : "storage/assets/css/px-user.css";
+      this.labels = (_c = JSON.parse(this.getAttribute("data-labels"))) != null ? _c : {};
+      this.module = new PxModUser({
+        stage: (_d = this.getAttribute("stage")) != null ? _d : window.PX_USER_STAGE,
+        domain: (_e = this.getAttribute("domain")) != null ? _e : window.PX_USER_DOMAIN,
+        tenant: (_f = this.getAttribute("tenant")) != null ? _f : window.PX_USER_TENANT,
+        language: (_g = this.language) != null ? _g : "de"
+      });
+    }
+    connectedCallback() {
+      this.getAttrValues();
+      const wrapper = parseHtml(`<div id="${this.containerId}" class="user-component"></div>`);
+      this.append(wrapper);
+      this.mountIFrame();
+      const errorMessageElem = parseHtml(`<span id="${this.containerId}-error" class="error-message mb-2" style="display: none;"></span>`);
+      wrapper.append(errorMessageElem);
+      this.errorMessageElem = errorMessageElem;
+      const successMessageElem = parseHtml(`<span id="${this.containerId}-success" class="success-message mb-2" style="display: none;"></span>`);
+      wrapper.append(successMessageElem);
+      this.successMessageElem = successMessageElem;
+    }
+    mountIFrame() {
+      console.warn("Override mountIFrame inside your class");
+    }
+    getContainerId() {
+      console.warn('Either set attribute "data-container-id" on element or override "getContainerId" inside your class');
+    }
+    resetMessages() {
+      this.successMessageElem.textContent = "";
+      this.errorMessageElem.textContent = "";
+      this.successMessageElem.style.display = "none";
+      this.errorMessageElem.style.display = "none";
+    }
+    handleError(error) {
+      this.resetMessages();
+      this.errorMessageElem.textContent = error.message;
+      this.errorMessageElem.style.display = "block";
+    }
+    handleSuccess(data, removeIFrame = true) {
+      this.resetMessages();
+      if (data.success) {
+        if (removeIFrame) {
+          document.querySelector(`#${this.containerId} .px-user-widget`).remove();
+        }
+        this.successMessageElem.textContent = data.message;
+        this.successMessageElem.style.display = "block";
+        window.dispatchEvent(new CustomEvent("px-user-success", {
+          detail: data
+        }));
+      }
+    }
+    get cssUrl() {
+      if (this.cssPath.startsWith("http://") || this.cssPath.startsWith("https://") || this.cssPath.startsWith("//")) {
+        return this.cssPath;
+      }
+      return `${this.appUrl}/${this.cssPath}`;
+    }
+  }
+  class PxUserLogin extends UserComponent {
+    mountIFrame() {
+      const fallbackTargetUrl = `${this.appUrl}/api/v2/login`;
+      const conf = {
+        containerElement: this.containerId,
+        fallbackTargetUrl,
+        fallbackButtonText: "Login!",
+        icons: {
+          togglePassword: {
+            password: true
+          }
+        },
+        cssUrl: this.cssUrl,
+        onSuccess: (response) => this.login(response),
+        onError: (response) => this.handleError(response)
+      };
+      if (Object.keys(this.labels).length > 0) {
+        conf.labels = this.labels;
+      }
+      this.module.showLoginForm(conf);
+    }
+    getContainerId() {
+      return "px-user-login";
+    }
+    login(response) {
+      window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
+        detail: response.response
+      }));
+    }
+  }
+  class PxUserActivateUser extends UserComponent {
+    mountIFrame() {
+      const fallbackTargetUrl = `${this.appUrl}/api/v1/doi-activation`;
+      this.module.showActivateUserForm({
+        token: this.token,
+        containerElement: this.containerId,
+        fallbackButtonText: "Set Password!",
+        fallbackTargetUrl,
+        cssUrl: this.cssUrl,
+        onSuccess: (response) => this.handleSuccess(response),
+        onError: (error) => this.handleError(error)
+      });
+    }
+    getContainerId() {
+      return "px-user-activate-user";
+    }
+  }
+  class PxUserForgotPassword extends UserComponent {
+    mountIFrame() {
+      const fallbackTargetUrl = `${this.appUrl}/api/v1/reset-password`;
+      this.module.showPasswordForgotForm({
+        containerElement: this.containerId,
+        fallbackTargetUrl,
+        fallbackButtonText: "Send password reset email!",
+        cssUrl: this.cssUrl,
+        onSuccess: (response) => this.handleSuccess(response),
+        onError: (error) => this.handleError(error)
+      });
+    }
+    getContainerId() {
+      return "px-user-forgot-password";
+    }
+  }
+  class PxUserSetPassword extends UserComponent {
+    mountIFrame() {
+      const fallbackTargetUrl = `${this.appUrl}/api/v1/set-password`;
+      this.module.showPasswordSetForm({
+        token: this.token,
+        containerElement: this.containerId,
+        fallbackTargetUrl,
+        fallbackButtonText: "Reset Password!",
+        cssUrl: this.cssUrl,
+        icons: {
+          togglePassword: {
+            passwordOne: true,
+            passwordTwo: true
+          }
+        },
+        showPasswordRules: true,
+        onSuccess: (response) => this.handleSuccess(response),
+        onError: (error) => this.handleError(error)
+      });
+    }
+    getContainerId() {
+      return "px-user-set-password";
+    }
+  }
+  class PxUserActivateUserAndLogin extends UserComponent {
+    mountIFrame() {
+      const fallbackTargetUrl = `${this.appUrl}/api/v1/activate-user-and-login`;
+      this.module.showActivateUserLoginForm({
+        token: this.token,
+        showPasswordRules: true,
+        containerElement: this.containerId,
+        fallbackTargetUrl,
+        fallbackButtonText: "Activate user and login!",
+        cssUrl: this.cssUrl,
+        icons: {
+          togglePassword: {
+            passwordOne: true,
+            passwordTwo: true
+          }
+        },
+        onSuccess: (response) => this.login(response),
+        onError: (error) => this.handleError(error)
+      });
+    }
+    getContainerId() {
+      return "px-user-activate-user-and-login";
+    }
+    login(response) {
+      window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
+        detail: response.response
+      }));
+    }
+  }
+  class PxUserActivateUserWithActivationCode extends UserComponent {
+    mountIFrame() {
+      const fallbackTargetUrl = `${this.appUrl}/api/v1/activation-code`;
+      this.module.showActivateUserByActivationCodeForm({
+        token: this.token,
+        showPasswordRules: true,
+        containerElement: this.containerId,
+        fallbackTargetUrl,
+        fallbackButtonText: "Activate User",
+        cssUrl: this.cssUrl,
+        onSuccess: (response) => this.activated(response),
+        onError: (error) => this.handleError(error),
+        onSuccessActivationCode: (response) => this.handleSuccess(response, false),
+        onErrorActivationCode: (error) => this.handleError(error)
+      });
+    }
+    getContainerId() {
+      return "px-user-activate-user-with-activation-code";
+    }
+    activated(response) {
+      window.dispatchEvent(new CustomEvent("px-user-activated", {
+        detail: response.response
+      }));
+      this.handleSuccess(response);
+    }
+  }
+  class PxUserSetPasswordByForgotPasswordCodeAndLogin extends UserComponent {
+    mountIFrame() {
+      const fallbackTargetUrl = `${this.appUrl}/api/v1/set-password`;
+      this.module.showPasswordSetByForgotPasswordCodeLoginForm({
+        token: this.token,
+        containerElement: this.containerId,
+        fallbackTargetUrl,
+        fallbackButtonText: "Reset Password!",
+        cssUrl: this.cssUrl,
+        icons: {
+          togglePassword: {
+            passwordOne: true,
+            passwordTwo: true
+          }
+        },
+        showPasswordRules: true,
+        onSuccess: (response) => this.login(response),
+        onError: (error) => this.handleError(error)
+      });
+    }
+    getContainerId() {
+      return "px-user-set-password-by-forgot-password-code-and-login";
+    }
+    login(response) {
+      window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
+        detail: response.response
+      }));
+    }
+  }
+  if (customElements.get("px-user-login") === void 0) {
+    customElements.define("px-user-login", PxUserLogin);
+  }
+  if (customElements.get("px-user-activate-user") === void 0) {
+    customElements.define("px-user-activate-user", PxUserActivateUser);
+  }
+  if (customElements.get("px-user-forgot-password") === void 0) {
+    customElements.define("px-user-forgot-password", PxUserForgotPassword);
+  }
+  if (customElements.get("px-user-set-password") === void 0) {
+    customElements.define("px-user-set-password", PxUserSetPassword);
+  }
+  if (customElements.get("px-user-activate-user-and-login") === void 0) {
+    customElements.define("px-user-activate-user-and-login", PxUserActivateUserAndLogin);
+  }
+  if (customElements.get("px-user-activate-user-with-activation-code") === void 0) {
+    customElements.define("px-user-activate-user-with-activation-code", PxUserActivateUserWithActivationCode);
+  }
+  if (customElements.get("px-user-set-password-by-forgot-password-code-and-login") === void 0) {
+    customElements.define("px-user-set-password-by-forgot-password-code-and-login", PxUserSetPasswordByForgotPasswordCodeAndLogin);
+  }
+});
