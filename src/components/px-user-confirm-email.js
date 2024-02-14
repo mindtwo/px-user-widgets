@@ -19,7 +19,7 @@ export class PxUserConfirmEmail extends UserComponent {
                 }
 
                 window.dispatchEvent(new CustomEvent('px-user-email-confirmed', {
-                    detail: data,
+                    detail: response,
                 }));
             },
             onError: (error) => this.handleError(error),

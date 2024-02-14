@@ -54,16 +54,16 @@
       this.errorMessageElem.textContent = error.message;
       this.errorMessageElem.style.display = "block";
     }
-    handleSuccess(data2, removeIFrame = true) {
+    handleSuccess(data, removeIFrame = true) {
       this.resetMessages();
-      if (data2.success) {
+      if (data.success) {
         if (removeIFrame) {
           document.querySelector(`#${this.containerId} .px-user-widget`).remove();
         }
-        this.successMessageElem.textContent = data2.message;
+        this.successMessageElem.textContent = data.message;
         this.successMessageElem.style.display = "block";
         window.dispatchEvent(new CustomEvent("px-user-success", {
-          detail: data2
+          detail: data
         }));
       }
     }
@@ -259,7 +259,7 @@
             return this.handleError(response);
           }
           window.dispatchEvent(new CustomEvent("px-user-email-confirmed", {
-            detail: data
+            detail: response
           }));
         },
         onError: (error) => this.handleError(error)
