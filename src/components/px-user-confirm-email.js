@@ -13,12 +13,6 @@ export class PxUserConfirmEmail extends UserComponent {
             fallbackTargetUrl,
             fallbackButtonText: 'Confirm New Email',
             cssUrl: this.cssUrl,
-            icons: {
-                togglePassword: {
-                    passwordOne: true,
-                    passwordTwo: true
-                }
-            },
             onSuccess: (response) => {
                 if (! response.success) {
                     return this.handleError(response);

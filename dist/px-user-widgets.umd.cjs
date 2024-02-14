@@ -54,16 +54,16 @@
       this.errorMessageElem.textContent = error.message;
       this.errorMessageElem.style.display = "block";
     }
-    handleSuccess(data, removeIFrame = true) {
+    handleSuccess(data2, removeIFrame = true) {
       this.resetMessages();
-      if (data.success) {
+      if (data2.success) {
         if (removeIFrame) {
           document.querySelector(`#${this.containerId} .px-user-widget`).remove();
         }
-        this.successMessageElem.textContent = data.message;
+        this.successMessageElem.textContent = data2.message;
         this.successMessageElem.style.display = "block";
         window.dispatchEvent(new CustomEvent("px-user-success", {
-          detail: data
+          detail: data2
         }));
       }
     }
@@ -245,6 +245,30 @@
       }));
     }
   }
+  class PxUserConfirmEmail extends UserComponent {
+    mountIFrame() {
+      const fallbackTargetUrl = `${this.appUrl}/api/v1/confirm-new-email`;
+      this.module.showConfirmNewEmailForm({
+        token: this.token,
+        containerElement: this.containerId,
+        fallbackTargetUrl,
+        fallbackButtonText: "Confirm New Email",
+        cssUrl: this.cssUrl,
+        onSuccess: (response) => {
+          if (!response.success) {
+            return this.handleError(response);
+          }
+          window.dispatchEvent(new CustomEvent("px-user-email-confirmed", {
+            detail: data
+          }));
+        },
+        onError: (error) => this.handleError(error)
+      });
+    }
+    getContainerId() {
+      return "px-user-confirm-email";
+    }
+  }
   if (customElements.get("px-user-login") === void 0) {
     customElements.define("px-user-login", PxUserLogin);
   }
@@ -265,5 +289,8 @@
   }
   if (customElements.get("px-user-set-password-by-forgot-password-code-and-login") === void 0) {
     customElements.define("px-user-set-password-by-forgot-password-code-and-login", PxUserSetPasswordByForgotPasswordCodeAndLogin);
+  }
+  if (customElements.get("px-user-confirm-email") === void 0) {
+    customElements.define("px-user-confirm-email", PxUserConfirmEmail);
   }
 });
