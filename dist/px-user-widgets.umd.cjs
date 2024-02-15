@@ -11,20 +11,22 @@
       super();
     }
     getAttrValues() {
-      var _a, _b, _c, _d, _e, _f, _g;
-      this.containerId = (_a = this.getAttribute("data-containerId")) != null ? _a : this.getContainerId();
+      this.containerId = this.getAttribute("data-containerId") ?? this.getContainerId();
       this.token = this.getAttribute("data-token");
       this.appUrl = this.getAttribute("data-app-url");
       this.language = this.getAttribute("data-language");
-      this.cssPath = (_b = this.getAttribute("data-css-path")) != null ? _b : "storage/assets/css/px-user.css";
-      this.labels = (_c = JSON.parse(this.getAttribute("data-labels"))) != null ? _c : {};
+      this.cssPath = this.getAttribute("data-css-path") ?? "storage/assets/css/px-user.css";
+      this.labels = JSON.parse(this.getAttribute("data-labels")) ?? {};
       this.module = new PxModUser({
-        stage: (_d = this.getAttribute("stage")) != null ? _d : window.PX_USER_STAGE,
-        domain: (_e = this.getAttribute("domain")) != null ? _e : window.PX_USER_DOMAIN,
-        tenant: (_f = this.getAttribute("tenant")) != null ? _f : window.PX_USER_TENANT,
-        language: (_g = this.language) != null ? _g : "de"
+        stage: this.getAttribute("stage") ?? window.PX_USER_STAGE,
+        domain: this.getAttribute("domain") ?? window.PX_USER_DOMAIN,
+        tenant: this.getAttribute("tenant") ?? window.PX_USER_TENANT,
+        language: this.language ?? "de"
       });
     }
+    /**
+     * Executed when the element is mounted
+     */
     connectedCallback() {
       this.getAttrValues();
       const wrapper = parseHtml(`<div id="${this.containerId}" class="user-component"></div>`);
@@ -37,9 +39,17 @@
       wrapper.append(successMessageElem);
       this.successMessageElem = successMessageElem;
     }
+    /**
+     * Mount iframe to our wrapper element.
+     * This should use a the function from PxUserModule
+     */
     mountIFrame() {
       console.warn("Override mountIFrame inside your class");
     }
+    /**
+     * Mount iframe to our wrapper element.
+     * This should use a the function from PxUserModule
+     */
     getContainerId() {
       console.warn('Either set attribute "data-container-id" on element or override "getContainerId" inside your class');
     }
@@ -49,11 +59,23 @@
       this.successMessageElem.style.display = "none";
       this.errorMessageElem.style.display = "none";
     }
+    /**
+     * Error handler
+     * Shows error message in notification
+     *
+     * @param error
+     */
     handleError(error) {
       this.resetMessages();
       this.errorMessageElem.textContent = error.message;
       this.errorMessageElem.style.display = "block";
     }
+    /**
+     * Success handler
+     *
+     * @param data
+     * @param remove
+     */
     handleSuccess(data, removeIFrame = true) {
       this.resetMessages();
       if (data.success) {
@@ -75,6 +97,9 @@
     }
   }
   class PxUserLogin extends UserComponent {
+    /**
+     * Mount iframe
+     */
     mountIFrame() {
       const fallbackTargetUrl = `${this.appUrl}/api/v2/login`;
       const conf = {
@@ -95,9 +120,19 @@
       }
       this.module.showLoginForm(conf);
     }
+    /**
+     * Get container fallback id
+     *
+     * @returns {String}
+     */
     getContainerId() {
       return "px-user-login";
     }
+    /**
+     * Login user on success
+     *
+     * @param response
+     */
     login(response) {
       window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
         detail: response.response
@@ -105,6 +140,9 @@
     }
   }
   class PxUserActivateUser extends UserComponent {
+    /**
+     * Mount iframe
+     */
     mountIFrame() {
       const fallbackTargetUrl = `${this.appUrl}/api/v1/doi-activation`;
       this.module.showActivateUserForm({
@@ -117,11 +155,19 @@
         onError: (error) => this.handleError(error)
       });
     }
+    /**
+     * Get container fallback id
+     *
+     * @returns {String}
+     */
     getContainerId() {
       return "px-user-activate-user";
     }
   }
   class PxUserForgotPassword extends UserComponent {
+    /**
+     * Mount iframe
+     */
     mountIFrame() {
       const fallbackTargetUrl = `${this.appUrl}/api/v1/reset-password`;
       this.module.showPasswordForgotForm({
@@ -133,11 +179,19 @@
         onError: (error) => this.handleError(error)
       });
     }
+    /**
+     * Get container fallback id
+     *
+     * @returns {String}
+     */
     getContainerId() {
       return "px-user-forgot-password";
     }
   }
   class PxUserSetPassword extends UserComponent {
+    /**
+     * Mount iframe
+     */
     mountIFrame() {
       const fallbackTargetUrl = `${this.appUrl}/api/v1/set-password`;
       this.module.showPasswordSetForm({
@@ -157,11 +211,19 @@
         onError: (error) => this.handleError(error)
       });
     }
+    /**
+     * Get container fallback id
+     *
+     * @returns {String}
+     */
     getContainerId() {
       return "px-user-set-password";
     }
   }
   class PxUserActivateUserAndLogin extends UserComponent {
+    /**
+     * Mount iframe
+     */
     mountIFrame() {
       const fallbackTargetUrl = `${this.appUrl}/api/v1/activate-user-and-login`;
       this.module.showActivateUserLoginForm({
@@ -181,9 +243,19 @@
         onError: (error) => this.handleError(error)
       });
     }
+    /**
+     * Get container fallback id
+     *
+     * @returns {String}
+     */
     getContainerId() {
       return "px-user-activate-user-and-login";
     }
+    /**
+     * Login user on success
+     *
+     * @param response
+     */
     login(response) {
       window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
         detail: response.response
@@ -191,6 +263,9 @@
     }
   }
   class PxUserActivateUserWithActivationCode extends UserComponent {
+    /**
+     * Mount iframe
+     */
     mountIFrame() {
       const fallbackTargetUrl = `${this.appUrl}/api/v1/activation-code`;
       this.module.showActivateUserByActivationCodeForm({
@@ -206,9 +281,19 @@
         onErrorActivationCode: (error) => this.handleError(error)
       });
     }
+    /**
+     * Get container fallback id
+     *
+     * @returns {String}
+     */
     getContainerId() {
       return "px-user-activate-user-with-activation-code";
     }
+    /**
+     * Login user on success
+     *
+     * @param response
+     */
     activated(response) {
       window.dispatchEvent(new CustomEvent("px-user-activated", {
         detail: response.response
@@ -217,6 +302,9 @@
     }
   }
   class PxUserSetPasswordByForgotPasswordCodeAndLogin extends UserComponent {
+    /**
+     * Mount iframe
+     */
     mountIFrame() {
       const fallbackTargetUrl = `${this.appUrl}/api/v1/set-password`;
       this.module.showPasswordSetByForgotPasswordCodeLoginForm({
@@ -236,9 +324,19 @@
         onError: (error) => this.handleError(error)
       });
     }
+    /**
+     * Get container fallback id
+     *
+     * @returns {String}
+     */
     getContainerId() {
       return "px-user-set-password-by-forgot-password-code-and-login";
     }
+    /**
+     * Login user on success
+     *
+     * @param response
+     */
     login(response) {
       window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
         detail: response.response
@@ -246,6 +344,9 @@
     }
   }
   class PxUserConfirmEmail extends UserComponent {
+    /**
+     * Mount iframe
+     */
     mountIFrame() {
       const fallbackTargetUrl = `${this.appUrl}/api/v1/confirm-new-email`;
       this.module.showConfirmNewEmailForm({
@@ -265,6 +366,11 @@
         onError: (error) => this.handleError(error)
       });
     }
+    /**
+     * Get container fallback id
+     *
+     * @returns {String}
+     */
     getContainerId() {
       return "px-user-confirm-email";
     }
