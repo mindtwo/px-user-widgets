@@ -6,6 +6,7 @@ import {PxUserActivateUserAndLogin} from './components/px-user-activate-user-and
 import {PxUserActivateUserWithActivationCode} from './components/px-user-activate-user-with-activation-code';
 import {PxUserSetPasswordByForgotPasswordCodeAndLogin} from './components/px-user-set-password-by-forgot-password-code-and-login';
 import { PxUserConfirmEmail } from './components/px-user-confirm-email';
+import {PxUserEipConfig} from "./components/px-user-eip-config.js";
 
 // check if element exists and register if not
 if(customElements.get('px-user-login') === undefined) {
@@ -43,4 +44,8 @@ if (customElements.get('px-user-set-password-by-forgot-password-code-and-login')
 
 if (customElements.get('px-user-confirm-email') === undefined) {
     customElements.define('px-user-confirm-email', PxUserConfirmEmail);
+}
+
+if(customElements.get('px-user-eip-config') === undefined) {
+    customElements.define('px-user-eip-config', PxUserEipConfig);
 }
