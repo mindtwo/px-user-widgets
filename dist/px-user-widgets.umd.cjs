@@ -375,6 +375,63 @@
       return "px-user-confirm-email";
     }
   }
+  class PxUserEipConfig extends UserComponent {
+    /**
+     * Mount iframe
+     */
+    mountIFrame() {
+      const fallbackTargetUrl = `${this.appUrl}/api/v2/eip-config`;
+      const conf = {
+        token: this.token,
+        containerElement: this.containerId,
+        fallbackButtonText: "Save config",
+        fallbackTargetUrl,
+        cssUrl: this.cssUrl,
+        onSuccess: (response) => this.showSuccess(response),
+        onError: (error) => this.showError(error)
+      };
+      if (Object.keys(this.labels).length > 0) {
+        conf.labels = this.labels;
+      }
+      this.module.showEipConfigForm(conf);
+    }
+    /**
+     * Get container fallback id
+     *
+     * @returns {String}
+     */
+    getContainerId() {
+      return "px-user-eip-config";
+    }
+    /**
+     * Handle success
+     *
+     * @param response
+     */
+    showSuccess(response, removeIFrame = true) {
+      this.resetMessages();
+      if (response.data.success) {
+        if (removeIFrame) {
+          document.querySelector(`#${this.containerId} .px-user-widget`).remove();
+        }
+        this.successMessageElem.textContent = response.data.message;
+        this.successMessageElem.style.display = "block";
+        window.dispatchEvent(new CustomEvent("px-user-eip-config-success", {
+          detail: response
+        }));
+      }
+    }
+    /**
+     * Handle error
+     *
+     * @param error
+     */
+    showError(error) {
+      this.resetMessages();
+      this.errorMessageElem.textContent = error.data.message;
+      this.errorMessageElem.style.display = "block";
+    }
+  }
   if (customElements.get("px-user-login") === void 0) {
     customElements.define("px-user-login", PxUserLogin);
   }
@@ -398,5 +455,8 @@
   }
   if (customElements.get("px-user-confirm-email") === void 0) {
     customElements.define("px-user-confirm-email", PxUserConfirmEmail);
+  }
+  if (customElements.get("px-user-eip-config") === void 0) {
+    customElements.define("px-user-eip-config", PxUserEipConfig);
   }
 });
