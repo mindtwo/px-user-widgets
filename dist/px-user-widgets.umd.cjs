@@ -416,7 +416,7 @@
         }
         this.successMessageElem.textContent = response.data.message;
         this.successMessageElem.style.display = "block";
-        window.dispatchEvent(new CustomEvent("px-user-success", {
+        window.dispatchEvent(new CustomEvent("px-user-eip-config-success", {
           detail: response
         }));
       }
