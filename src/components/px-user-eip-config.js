@@ -38,23 +38,12 @@ export class PxUserEipConfig extends UserComponent {
      *
      * @param response
      */
-    showSuccess(response, removeIFrame = true) {
-        this.resetMessages();
+    showSuccess(response) {
+        this.handleSuccess(response.data, response.source === 'save' && response.data.success);
 
-        if (response.data.success) {
-            // remove iframe
-            if (removeIFrame) {
-                document.querySelector(`#${this.containerId} .px-user-widget`).remove();
-            }
-
-            // set our success message
-            this.successMessageElem.textContent = response.data.message;
-            this.successMessageElem.style.display = 'block';
-
-            window.dispatchEvent(new CustomEvent('px-user-eip-config-success', {
-                detail: response,
-            }));
-        }
+        window.dispatchEvent(new CustomEvent('px-user-eip-config-success', {
+            detail: response,
+        }));
     }
 
     /**
@@ -63,9 +52,6 @@ export class PxUserEipConfig extends UserComponent {
      * @param error
      */
     showError(error) {
-        this.resetMessages();
-
-        this.errorMessageElem.textContent = error.data.message;
-        this.errorMessageElem.style.display = 'block';
+        this.handleError(error.data)
     }
 }
