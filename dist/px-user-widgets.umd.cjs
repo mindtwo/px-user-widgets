@@ -408,18 +408,11 @@
      *
      * @param response
      */
-    showSuccess(response, removeIFrame = true) {
-      this.resetMessages();
-      if (response.data.success) {
-        if (removeIFrame) {
-          document.querySelector(`#${this.containerId} .px-user-widget`).remove();
-        }
-        this.successMessageElem.textContent = response.data.message;
-        this.successMessageElem.style.display = "block";
-        window.dispatchEvent(new CustomEvent("px-user-eip-config-success", {
-          detail: response
-        }));
-      }
+    showSuccess(response) {
+      this.handleSuccess(response.data, response.source === "save" && response.data.success);
+      window.dispatchEvent(new CustomEvent("px-user-eip-config-success", {
+        detail: response
+      }));
     }
     /**
      * Handle error
@@ -427,9 +420,7 @@
      * @param error
      */
     showError(error) {
-      this.resetMessages();
-      this.errorMessageElem.textContent = error.data.message;
-      this.errorMessageElem.style.display = "block";
+      this.handleError(error.data);
     }
   }
   if (customElements.get("px-user-login") === void 0) {
