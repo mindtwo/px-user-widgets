@@ -166,14 +166,18 @@ class PxUserForgotPassword extends UserComponent {
    */
   mountIFrame() {
     const fallbackTargetUrl = `${this.appUrl}/api/v1/reset-password`;
-    this.module.showPasswordForgotForm({
+    const conf = {
       containerElement: this.containerId,
       fallbackTargetUrl,
       fallbackButtonText: "Send password reset email!",
       cssUrl: this.cssUrl,
       onSuccess: (response) => this.handleSuccess(response),
       onError: (error) => this.handleError(error)
-    });
+    };
+    if (Object.keys(this.labels).length > 0) {
+      conf.labels = this.labels;
+    }
+    this.module.showPasswordForgotForm(conf);
   }
   /**
    * Get container fallback id
