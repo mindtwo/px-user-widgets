@@ -126,8 +126,6 @@
       }
       if (this.showLoginWithEip) {
         conf.showLoginWithEip = true;
-        conf.eipAuthToken = null;
-        conf.eipState = null;
         conf.eipLoginRedirectUri = this.getEipRedirectUri();
       }
       if (this.hasEipRedirectParams()) {

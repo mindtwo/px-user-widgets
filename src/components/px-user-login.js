@@ -28,8 +28,8 @@ export class PxUserLogin extends UserComponent {
         // configure EIP login first step
         if (this.showLoginWithEip) {
             conf.showLoginWithEip = true;
-            conf.eipAuthToken = null;
-            conf.eipState = null;
+            // conf.eipAuthToken = null;
+            // conf.eipState = null;
             conf.eipLoginRedirectUri = this.getEipRedirectUri();
         }
 
