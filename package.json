@@ -4,7 +4,7 @@
     "files": [
         "dist"
     ],
-    "version": "2.2.2",
+    "version": "2.3.0",
     "description": "Wrapper for PX User Widgets",
     "main": "./dist/px-user-widgets.umd.cjs",
     "module": "./dist/px-user-widgets.js",

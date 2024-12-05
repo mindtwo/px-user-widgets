@@ -11,6 +11,7 @@ class UserComponent extends HTMLElement {
     this.token = this.getAttribute("data-token");
     this.appUrl = this.getAttribute("data-app-url");
     this.language = this.getAttribute("data-language");
+    this.showLoginWithEip = this.getAttribute("data-show-login-with-eip") === "true";
     this.cssPath = this.getAttribute("data-css-path") ?? "storage/assets/css/px-user.css";
     this.labels = JSON.parse(this.getAttribute("data-labels")) ?? {};
     this.module = new PxModUser({
@@ -63,7 +64,12 @@ class UserComponent extends HTMLElement {
    */
   handleError(error) {
     this.resetMessages();
-    this.errorMessageElem.textContent = error.message;
+    let text = error.message ?? error;
+    if (typeof text !== "string") {
+      text = null;
+      console.error(error);
+    }
+    this.errorMessageElem.textContent = text ?? "An error occurred";
     this.errorMessageElem.style.display = "block";
   }
   /**
@@ -114,15 +120,75 @@ class PxUserLogin extends UserComponent {
     if (Object.keys(this.labels).length > 0) {
       conf.labels = this.labels;
     }
+    if (this.showLoginWithEip) {
+      conf.showLoginWithEip = true;
+      conf.eipAuthToken = null;
+      conf.eipState = null;
+      conf.eipLoginRedirectUri = this.getEipRedirectUri();
+    }
+    if (this.hasEipRedirectParams()) {
+      const params = this.getEipParams();
+      if (params.success) {
+        conf.eipAuthToken = params.code;
+        conf.eipState = params.state;
+      } else {
+        this.handleError(params);
+        return;
+      }
+    }
     this.module.showLoginForm(conf);
   }
   /**
    * Get container fallback id
    *
-   * @returns {String}
+   * @returns {string}
    */
   getContainerId() {
     return "px-user-login";
+  }
+  /**
+   * Get EIP redirect URI
+   *
+   * @returns {string|null}
+   */
+  getEipRedirectUri() {
+    if (!this.showLoginWithEip) {
+      return null;
+    }
+    return this.eipLoginRedirectUri ?? window.location.href;
+  }
+  /**
+   * Get whether EIP redirect params are present
+   *
+   * @returns {boolean}
+   */
+  hasEipRedirectParams() {
+    var _a;
+    const search = (_a = window == null ? void 0 : window.location) == null ? void 0 : _a.search;
+    if (!search) {
+      return false;
+    }
+    const params = new URLSearchParams(search);
+    return params.has("code") && params.has("state") || params.has("error");
+  }
+  /**
+   * Get EIP params
+   * @returns {{success: boolean, code: string, state: string, error: string}}
+   */
+  getEipParams() {
+    var _a;
+    const search = (_a = window == null ? void 0 : window.location) == null ? void 0 : _a.search;
+    if (!search) {
+      return {};
+    }
+    const params = new URLSearchParams(search);
+    const error = params.get("error");
+    return {
+      success: !error,
+      code: params.get("code"),
+      state: params.get("state"),
+      error
+    };
   }
   /**
    * Login user on success
