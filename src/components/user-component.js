@@ -11,6 +11,8 @@ export class UserComponent extends HTMLElement {
         this.appUrl = this.getAttribute('data-app-url');
         this.language = this.getAttribute('data-language');
 
+        this.showLoginWithEip = this.getAttribute('data-show-login-with-eip') === 'true';
+
         this.cssPath = this.getAttribute('data-css-path') ?? 'storage/assets/css/px-user.css';
 
         this.labels = JSON.parse(this.getAttribute('data-labels')) ?? {};
@@ -81,7 +83,15 @@ export class UserComponent extends HTMLElement {
     handleError(error) {
         this.resetMessages();
 
-        this.errorMessageElem.textContent = error.message;
+        let text = error.message ?? error;
+
+        // check if error is an object
+        if (typeof text !== 'string') {
+            text = null;
+            console.error(error);
+        }
+
+        this.errorMessageElem.textContent = text ?? 'An error occurred';
         this.errorMessageElem.style.display = 'block';
     }
 
