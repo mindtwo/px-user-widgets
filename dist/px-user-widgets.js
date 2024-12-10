@@ -124,6 +124,7 @@ class PxUserLogin extends UserComponent {
       conf.showLoginWithEip = true;
       conf.state = "1234567890";
       conf.client_id = "abc123";
+      conf.eipLoginRedirectUri = this.getRedirectUri();
     }
     this.module.showLoginForm(conf);
   }
@@ -134,6 +135,13 @@ class PxUserLogin extends UserComponent {
    */
   getContainerId() {
     return "px-user-login";
+  }
+  getRedirectUri() {
+    var _a;
+    if (!((_a = window.location) == null ? void 0 : _a.origin)) {
+      return "";
+    }
+    return window.location.origin;
   }
   /**
    * Login user on success
