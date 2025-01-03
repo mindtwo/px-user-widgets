@@ -1,5 +1,16 @@
 import { parseHtml } from '../helper';
 
+function waitForObject(name) {
+    return new Promise((resolve, reject) => {
+        const intervalId = setInterval(() => {
+            if (window[name]) {
+                clearInterval(intervalId);
+                resolve(window[name]);
+            }
+        }, 100); // Check every 100 milliseconds for availability of thatObject
+    });
+}
+
 export class UserComponent extends HTMLElement {
     constructor() {
         super();
@@ -17,7 +28,14 @@ export class UserComponent extends HTMLElement {
 
         this.labels = JSON.parse(this.getAttribute('data-labels')) ?? {};
 
-        this.module = new PxModUser({
+        // Wait for PxUserModule to be loaded
+        waitForObject('PxModUser').then((module) => {
+            this.initUserModule(module);
+        });
+    }
+
+    initUserModule(module) {
+        this.module = new module({
             stage: this.getAttribute('stage') ?? window.PX_USER_STAGE,
             domain: this.getAttribute('domain') ?? window.PX_USER_DOMAIN,
             tenant: this.getAttribute('tenant') ?? window.PX_USER_TENANT,

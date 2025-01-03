@@ -6,6 +6,16 @@
     const dom = new DOMParser().parseFromString(htmlString, "text/html");
     return dom.body.firstChild;
   };
+  function waitForObject(name) {
+    return new Promise((resolve, reject) => {
+      const intervalId = setInterval(() => {
+        if (window[name]) {
+          clearInterval(intervalId);
+          resolve(window[name]);
+        }
+      }, 100);
+    });
+  }
   class UserComponent extends HTMLElement {
     constructor() {
       super();
@@ -18,7 +28,12 @@
       this.showLoginWithEip = this.getAttribute("data-show-login-with-eip") === "true";
       this.cssPath = this.getAttribute("data-css-path") ?? "storage/assets/css/px-user.css";
       this.labels = JSON.parse(this.getAttribute("data-labels")) ?? {};
-      this.module = new PxModUser({
+      waitForObject("PxModUser").then((module) => {
+        this.initUserModule(module);
+      });
+    }
+    initUserModule(module) {
+      this.module = new module({
         stage: this.getAttribute("stage") ?? window.PX_USER_STAGE,
         domain: this.getAttribute("domain") ?? window.PX_USER_DOMAIN,
         tenant: this.getAttribute("tenant") ?? window.PX_USER_TENANT,
