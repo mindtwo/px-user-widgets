@@ -27,11 +27,6 @@ export class UserComponent extends HTMLElement {
         this.cssPath = this.getAttribute('data-css-path') ?? 'storage/assets/css/px-user.css';
 
         this.labels = JSON.parse(this.getAttribute('data-labels')) ?? {};
-
-        // Wait for PxUserModule to be loaded
-        waitForObject('PxModUser').then((module) => {
-            this.initUserModule(module);
-        });
     }
 
     initUserModule(module) {
@@ -53,7 +48,12 @@ export class UserComponent extends HTMLElement {
         const wrapper = parseHtml(`<div id="${this.containerId}" class="user-component"></div>`);
         this.append(wrapper);
 
-        this.mountIFrame();
+        // Wait for PxUserModule to be loaded
+        waitForObject('PxModUser').then((module) => {
+            this.initUserModule(module);
+
+            this.mountIFrame();
+        });
 
         // create error message element
         const errorMessageElem = parseHtml(`<span id="${this.containerId}-error" class="error-message mb-2" style="display: none;"></span>`);

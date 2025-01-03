@@ -24,9 +24,6 @@ class UserComponent extends HTMLElement {
     this.showLoginWithEip = this.getAttribute("data-show-login-with-eip") === "true";
     this.cssPath = this.getAttribute("data-css-path") ?? "storage/assets/css/px-user.css";
     this.labels = JSON.parse(this.getAttribute("data-labels")) ?? {};
-    waitForObject("PxModUser").then((module) => {
-      this.initUserModule(module);
-    });
   }
   initUserModule(module) {
     this.module = new module({
@@ -43,7 +40,10 @@ class UserComponent extends HTMLElement {
     this.getAttrValues();
     const wrapper = parseHtml(`<div id="${this.containerId}" class="user-component"></div>`);
     this.append(wrapper);
-    this.mountIFrame();
+    waitForObject("PxModUser").then((module) => {
+      this.initUserModule(module);
+      this.mountIFrame();
+    });
     const errorMessageElem = parseHtml(`<span id="${this.containerId}-error" class="error-message mb-2" style="display: none;"></span>`);
     wrapper.append(errorMessageElem);
     this.errorMessageElem = errorMessageElem;
