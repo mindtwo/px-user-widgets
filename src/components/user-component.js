@@ -101,6 +101,11 @@ export class UserComponent extends HTMLElement {
     handleError(error) {
         this.resetMessages();
 
+        // if validation code is 200, we don't show the error
+        if (error.validation_code === 200){
+            return;
+        }
+
         let text = error.message ?? error;
 
         // check if error is an object

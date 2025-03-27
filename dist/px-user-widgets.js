@@ -79,6 +79,9 @@ class UserComponent extends HTMLElement {
    */
   handleError(error) {
     this.resetMessages();
+    if (error.validation_code === 200) {
+      return;
+    }
     let text = error.message ?? error;
     if (typeof text !== "string") {
       text = null;
