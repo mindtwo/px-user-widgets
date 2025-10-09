@@ -1,7 +1,7 @@
 import { PxUserBaseWidget } from '../base/px-user-base-widget';
 
-export class PxUserActivateUserAndLogin extends PxUserBaseWidget {
-    static widgetName = 'activate-user-login';
+export class PxUserSetPasswordByForgotPasswordCodeAndLogin extends PxUserBaseWidget {
+    static widgetName = 'password-set-by-forgot-password-code-login';
 
     successEventName = 'login';
 

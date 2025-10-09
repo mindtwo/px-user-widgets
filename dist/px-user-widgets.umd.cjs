@@ -475,7 +475,6 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
   }
   function createWidgetElement(widgetName, customElementName = void 0, baseClass = PxUserBaseWidget) {
     const elementName = customElementName || `px-user-${widgetName}`;
-    console.log(elementName);
     if (customElements.get(elementName) !== void 0) {
       return;
     }
@@ -489,6 +488,29 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
       return;
     }
     customElements.define(customElementName, elementClass);
+  }
+  class PxUserTokenWidget extends PxUserBaseWidget {
+    /**
+     * Configure the widget with the necessary options.
+     *
+     * @param {*} config
+     * @return {*}
+     * @memberof PxUserLogin
+     */
+    configureWidget(config) {
+      const token = this.config("token");
+      console.log(
+        `Configuring ${this.constructor.widgetName} with token:`,
+        token
+      );
+      if (!token) {
+        throw new Error(
+          `Token is required for ${this.constructor.widgetName}`
+        );
+      }
+      config.token = token;
+      return config;
+    }
   }
   class PxUserLogin extends PxUserBaseWidget {
     constructor() {
@@ -526,6 +548,98 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
     }
   }
   __publicField(PxUserLogin, "widgetName", "login");
+  class PxUserActivateUserWithActivationCode extends PxUserBaseWidget {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "successEventName", "activated");
+    }
+    /**
+     * Configure the widget with the necessary options.
+     *
+     * @param {*} config
+     * @return {*}
+     * @memberof PxUserLogin
+     */
+    configureWidget(config) {
+      config.token = this.config("token");
+      config.showPasswordRules = true;
+      config.onSuccessActivationCode = (response) => this.displayMessage("success", response.message);
+      config.onErrorActivationCode = (error) => this.displayMessage("error", error.message);
+      return config;
+    }
+  }
+  __publicField(PxUserActivateUserWithActivationCode, "widgetName", "activate-user-by-activation-code");
+  class PxUserActivateUserAndLogin extends PxUserBaseWidget {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "successEventName", "login");
+    }
+    /**
+     * Configure the widget with the necessary options.
+     *
+     * @param {*} config
+     * @return {*}
+     * @memberof PxUserLogin
+     */
+    configureWidget(config) {
+      config.token = this.config("token");
+      config.showPasswordRules = true;
+      config.icons = {
+        togglePassword: {
+          passwordOne: true,
+          passwordTwo: true
+        }
+      };
+      return config;
+    }
+  }
+  __publicField(PxUserActivateUserAndLogin, "widgetName", "activate-user-login");
+  class PxUserSetPasswordByForgotPasswordCodeAndLogin extends PxUserBaseWidget {
+    constructor() {
+      super(...arguments);
+      __publicField(this, "successEventName", "login");
+    }
+    /**
+     * Configure the widget with the necessary options.
+     *
+     * @param {*} config
+     * @return {*}
+     * @memberof PxUserLogin
+     */
+    configureWidget(config) {
+      config.token = this.config("token");
+      config.showPasswordRules = true;
+      config.icons = {
+        togglePassword: {
+          passwordOne: true,
+          passwordTwo: true
+        }
+      };
+      return config;
+    }
+  }
+  __publicField(PxUserSetPasswordByForgotPasswordCodeAndLogin, "widgetName", "password-set-by-forgot-password-code-login");
+  class PxUserSetPassword extends PxUserBaseWidget {
+    /**
+     * Configure the widget with the necessary options.
+     *
+     * @param {*} config
+     * @return {*}
+     * @memberof PxUserLogin
+     */
+    configureWidget(config) {
+      config.token = this.config("token");
+      config.showPasswordRules = true;
+      config.icons = {
+        togglePassword: {
+          passwordOne: true,
+          passwordTwo: true
+        }
+      };
+      return config;
+    }
+  }
+  __publicField(PxUserSetPassword, "widgetName", "password-set");
   class UserComponent extends HTMLElement {
     constructor() {
       super();
@@ -602,206 +716,14 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
       }
     }
   }
-  class PxUserSetPassword extends UserComponent {
-    /**
-     * Mount iframe
-     */
-    mountIFrame() {
-      const fallbackTargetUrl = `${this.appUrl}/api/v1/set-password`;
-      this.module.showPasswordSetForm({
-        token: this.token,
-        containerElement: this.containerId,
-        fallbackTargetUrl,
-        fallbackButtonText: "Reset Password!",
-        cssUrl: this.cssUrl,
-        icons: {
-          togglePassword: {
-            passwordOne: true,
-            passwordTwo: true
-          }
-        },
-        showPasswordRules: true,
-        onSuccess: (response) => this.handleSuccess(response),
-        onError: (error) => this.handleError(error)
-      });
-    }
-    /**
-     * Get container fallback id
-     *
-     * @returns {String}
-     */
-    getContainerId() {
-      return "px-user-set-password";
-    }
-  }
-  class PxUserActivateUserAndLogin extends UserComponent {
-    /**
-     * Mount iframe
-     */
-    mountIFrame() {
-      const fallbackTargetUrl = `${this.appUrl}/api/v1/activate-user-and-login`;
-      this.module.showActivateUserLoginForm({
-        token: this.token,
-        showPasswordRules: true,
-        containerElement: this.containerId,
-        fallbackTargetUrl,
-        fallbackButtonText: "Activate user and login!",
-        cssUrl: this.cssUrl,
-        icons: {
-          togglePassword: {
-            passwordOne: true,
-            passwordTwo: true
-          }
-        },
-        onSuccess: (response) => this.login(response),
-        onError: (error) => this.handleError(error)
-      });
-    }
-    /**
-     * Get container fallback id
-     *
-     * @returns {String}
-     */
-    getContainerId() {
-      return "px-user-activate-user-and-login";
-    }
-    /**
-     * Login user on success
-     *
-     * @param response
-     */
-    login(response) {
-      window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
-        detail: response.response
-      }));
-    }
-  }
-  class PxUserActivateUserWithActivationCode extends UserComponent {
-    /**
-     * Mount iframe
-     */
-    mountIFrame() {
-      `${this.appUrl}/api/v1/activation-code`;
-      this.module.showActivateUserByActivationCodeForm({
-        token: this.token,
-        showPasswordRules: true,
-        fallbackButtonText: "Activate User",
-        onSuccess: (response) => this.activated(response),
-        onError: (error) => this.handleError(error),
-        onSuccessActivationCode: (response) => this.handleSuccess(response, false),
-        onErrorActivationCode: (error) => this.handleError(error)
-      });
-    }
-    /**
-     * Get container fallback id
-     *
-     * @returns {String}
-     */
-    getContainerId() {
-      return "px-user-activate-user-with-activation-code";
-    }
-    /**
-     * Login user on success
-     *
-     * @param response
-     */
-    activated(response) {
-      window.dispatchEvent(
-        new CustomEvent("px-user-activated", {
-          detail: response.response
-        })
-      );
-      this.handleSuccess(response);
-    }
-  }
-  class PxUserSetPasswordByForgotPasswordCodeAndLogin extends UserComponent {
-    /**
-     * Mount iframe
-     */
-    mountIFrame() {
-      const fallbackTargetUrl = `${this.appUrl}/api/v1/set-password`;
-      this.module.showPasswordSetByForgotPasswordCodeLoginForm({
-        token: this.token,
-        containerElement: this.containerId,
-        fallbackTargetUrl,
-        fallbackButtonText: "Reset Password!",
-        cssUrl: this.cssUrl,
-        icons: {
-          togglePassword: {
-            passwordOne: true,
-            passwordTwo: true
-          }
-        },
-        showPasswordRules: true,
-        onSuccess: (response) => this.login(response),
-        onError: (error) => this.handleError(error)
-      });
-    }
-    /**
-     * Get container fallback id
-     *
-     * @returns {String}
-     */
-    getContainerId() {
-      return "px-user-set-password-by-forgot-password-code-and-login";
-    }
-    /**
-     * Login user on success
-     *
-     * @param response
-     */
-    login(response) {
-      window.dispatchEvent(new CustomEvent("px-user-loggedIn", {
-        detail: response.response
-      }));
-    }
-  }
-  class PxUserConfirmEmail extends UserComponent {
-    /**
-     * Mount iframe
-     */
-    mountIFrame() {
-      const fallbackTargetUrl = `${this.appUrl}/api/v1/confirm-new-email`;
-      this.module.showConfirmNewEmailForm({
-        token: this.token,
-        containerElement: this.containerId,
-        fallbackTargetUrl,
-        fallbackButtonText: "Confirm New Email",
-        cssUrl: this.cssUrl,
-        onSuccess: (response) => {
-          if (!response.success) {
-            return this.handleError(response);
-          }
-          window.dispatchEvent(new CustomEvent("px-user-email-confirmed", {
-            detail: response
-          }));
-        },
-        onError: (error) => this.handleError(error)
-      });
-    }
-    /**
-     * Get container fallback id
-     *
-     * @returns {String}
-     */
-    getContainerId() {
-      return "px-user-confirm-email";
-    }
-  }
   class PxUserEipConfig extends UserComponent {
     /**
      * Mount iframe
      */
     mountIFrame() {
-      const fallbackTargetUrl = `${this.appUrl}/api/v2/eip-config`;
       const conf = {
         token: this.token,
-        containerElement: this.containerId,
-        fallbackButtonText: "Save config",
-        fallbackTargetUrl,
-        cssUrl: this.cssUrl,
-        onSuccess: (response) => this.showSuccess(response),
-        onError: (error) => this.showError(error)
+        onSuccess: (response) => this.showSuccess(response)
       };
       if (Object.keys(this.labels).length > 0) {
         conf.labels = this.labels;
@@ -809,85 +731,43 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
       this.module.showEipConfigForm(conf);
     }
     /**
-     * Get container fallback id
-     *
-     * @returns {String}
-     */
-    getContainerId() {
-      return "px-user-eip-config";
-    }
-    /**
      * Handle success
      *
      * @param response
      */
     showSuccess(response) {
-      this.handleSuccess(response.data, response.source === "save" && response.data.success);
-      window.dispatchEvent(new CustomEvent("px-user-eip-config-success", {
-        detail: response
-      }));
-    }
-    /**
-     * Handle error
-     *
-     * @param error
-     */
-    showError(error) {
-      this.handleError(error.data);
-    }
-  }
-  class PxUserTokenWidget extends PxUserBaseWidget {
-    /**
-     * Configure the widget with the necessary options.
-     *
-     * @param {*} config
-     * @return {*}
-     * @memberof PxUserLogin
-     */
-    configureWidget(config) {
-      const token = this.config("token");
-      console.log(
-        `Configuring ${this.constructor.widgetName} with token:`,
-        token
+      this.handleSuccess(
+        response.data,
+        response.source === "save" && response.data.success
       );
-      if (!token) {
-        throw new Error(
-          `Token is required for ${this.constructor.widgetName}`
-        );
-      }
-      config.token = token;
-      return config;
+      window.dispatchEvent(
+        new CustomEvent("px-user-eip-config-success", {
+          detail: response
+        })
+      );
     }
   }
   createCustomElement("px-user-login", PxUserLogin);
   createWidgetElement("password-forgot", "px-user-forgot-password");
   createWidgetElement("activate-user", void 0, PxUserTokenWidget);
-  if (customElements.get("px-user-set-password") === void 0) {
-    customElements.define("px-user-set-password", PxUserSetPassword);
-  }
-  if (customElements.get("px-user-activate-user-and-login") === void 0) {
-    customElements.define(
-      "px-user-activate-user-and-login",
-      PxUserActivateUserAndLogin
-    );
-  }
-  if (customElements.get("px-user-activate-user-with-activation-code") === void 0) {
-    customElements.define(
-      "px-user-activate-user-with-activation-code",
-      PxUserActivateUserWithActivationCode
-    );
-  }
-  if (customElements.get(
-    "px-user-set-password-by-forgot-password-code-and-login"
-  ) === void 0) {
-    customElements.define(
-      "px-user-set-password-by-forgot-password-code-and-login",
-      PxUserSetPasswordByForgotPasswordCodeAndLogin
-    );
-  }
-  if (customElements.get("px-user-confirm-email") === void 0) {
-    customElements.define("px-user-confirm-email", PxUserConfirmEmail);
-  }
+  createCustomElement(
+    "px-user-activate-user-and-login",
+    PxUserActivateUserAndLogin
+  );
+  createCustomElement(
+    "px-user-activate-user-with-activation-code",
+    PxUserActivateUserWithActivationCode
+  );
+  createCustomElement(
+    "px-user-set-password-by-forgot-password-code-and-login",
+    PxUserSetPasswordByForgotPasswordCodeAndLogin
+  );
+  createWidgetElement(
+    "confirm-new-email",
+    "px-user-confirm-email",
+    PxUserTokenWidget
+  );
+  createCustomElement("px-user-set-password", PxUserSetPassword);
   if (customElements.get("px-user-eip-config") === void 0) {
     customElements.define("px-user-eip-config", PxUserEipConfig);
   }

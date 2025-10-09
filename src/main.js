@@ -1,14 +1,14 @@
 import { createCustomElement, createWidgetElement } from './helper/index.js';
+// Base
+import { PxUserTokenWidget } from './base/px-user-token-widget.js';
 // Special widgets
 import { PxUserLogin } from './widgets/px-user-login';
-
-import { PxUserSetPassword } from './components/px-user-set-password';
-import { PxUserActivateUserAndLogin } from './components/px-user-activate-user-and-login';
-import { PxUserActivateUserWithActivationCode } from './components/px-user-activate-user-with-activation-code';
-import { PxUserSetPasswordByForgotPasswordCodeAndLogin } from './components/px-user-set-password-by-forgot-password-code-and-login';
-import { PxUserConfirmEmail } from './components/px-user-confirm-email';
+import { PxUserActivateUserWithActivationCode } from './widgets/px-user-activate-user-with-activation-code';
+import { PxUserActivateUserAndLogin } from './widgets/px-user-activate-user-and-login';
+import { PxUserSetPasswordByForgotPasswordCodeAndLogin } from './widgets/px-user-set-password-by-forgot-password-code-and-login';
+import { PxUserSetPassword } from './widgets/px-user-set-password';
+// Old widgets
 import { PxUserEipConfig } from './components/px-user-eip-config.js';
-import { PxUserTokenWidget } from './base/px-user-token-widget.js';
 
 // Login widget
 createCustomElement('px-user-login', PxUserLogin);
@@ -19,44 +19,33 @@ createWidgetElement('password-forgot', 'px-user-forgot-password');
 // Create element for activate user
 createWidgetElement('activate-user', undefined, PxUserTokenWidget);
 
-// check if element exists and register if not
-if (customElements.get('px-user-set-password') === undefined) {
-    customElements.define('px-user-set-password', PxUserSetPassword);
-}
+// Create WidgetElement
+createCustomElement(
+    'px-user-activate-user-and-login',
+    PxUserActivateUserAndLogin,
+);
 
-// check if element exists and register if not
-if (customElements.get('px-user-activate-user-and-login') === undefined) {
-    customElements.define(
-        'px-user-activate-user-and-login',
-        PxUserActivateUserAndLogin,
-    );
-}
+// Create WidgetElement for activation by code
+createCustomElement(
+    'px-user-activate-user-with-activation-code',
+    PxUserActivateUserWithActivationCode,
+);
 
-// check if element exists and register if not
-if (
-    customElements.get('px-user-activate-user-with-activation-code') ===
-    undefined
-) {
-    customElements.define(
-        'px-user-activate-user-with-activation-code',
-        PxUserActivateUserWithActivationCode,
-    );
-}
+// Create custom element for set password
+createCustomElement(
+    'px-user-set-password-by-forgot-password-code-and-login',
+    PxUserSetPasswordByForgotPasswordCodeAndLogin,
+);
 
-if (
-    customElements.get(
-        'px-user-set-password-by-forgot-password-code-and-login',
-    ) === undefined
-) {
-    customElements.define(
-        'px-user-set-password-by-forgot-password-code-and-login',
-        PxUserSetPasswordByForgotPasswordCodeAndLogin,
-    );
-}
+// Confirm email widget
+createWidgetElement(
+    'confirm-new-email',
+    'px-user-confirm-email',
+    PxUserTokenWidget,
+);
 
-if (customElements.get('px-user-confirm-email') === undefined) {
-    customElements.define('px-user-confirm-email', PxUserConfirmEmail);
-}
+// Create custom element for set password
+createCustomElement('px-user-set-password', PxUserSetPassword);
 
 if (customElements.get('px-user-eip-config') === undefined) {
     customElements.define('px-user-eip-config', PxUserEipConfig);

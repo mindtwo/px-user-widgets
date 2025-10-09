@@ -6,18 +6,23 @@ export class PxUserActivateUserWithActivationCode extends PxUserBaseWidget {
     successEventName = 'activated';
 
     /**
-     * Mount iframe
+     * Configure the widget with the necessary options.
+     *
+     * @param {*} config
+     * @return {*}
+     * @memberof PxUserLogin
      */
-    mountIFrame() {
-        this.module.showActivateUserByActivationCodeForm({
-            token: this.token,
-            showPasswordRules: true,
+    configureWidget(config) {
+        // Get the token from config
+        config.token = this.config('token');
+        config.showPasswordRules = true;
 
-            // TODO: displat message
-            onSuccessActivationCode: (response) =>
-                this.handleSuccess(response, false),
-            // TODO: displat error message
-            onErrorActivationCode: (error) => this.handleError(error),
-        });
+        config.onSuccessActivationCode = (response) =>
+            this.displayMessage('success', response.message);
+
+        config.onErrorActivationCode = (error) =>
+            this.displayMessage('error', error.message);
+
+        return config;
     }
 }
