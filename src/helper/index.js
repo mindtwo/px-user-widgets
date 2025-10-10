@@ -162,11 +162,13 @@ export function emitter(element) {
  * @param {string} widgetName - The name of the custom element.
  * @param {string} [customElementName] - Optional custom element name, defaults to `px-user-${name}`.
  * @param {class} [baseClass=PxUserBaseWidget] - The base class to extend for the custom element.
+ * @param {function} [decorator] - Optional decorator function to modify the class before defining it.
  */
 export function createWidgetElement(
     widgetName,
     customElementName = undefined,
     baseClass = PxUserBaseWidget,
+    decorator = undefined,
 ) {
     const elementName = customElementName || `px-user-${widgetName}`;
 
@@ -175,9 +177,17 @@ export function createWidgetElement(
         return;
     }
 
+    // Ensure the base class is defined
+    baseClass = baseClass || PxUserBaseWidget;
+
     // Create a new class that extends the base class
     class Widget extends baseClass {}
     Widget.widgetName = widgetName;
+
+    if (decorator && typeof decorator === 'function') {
+        // Apply the decorator function to the class
+        decorator(Widget);
+    }
 
     customElements.define(elementName, Widget);
 }

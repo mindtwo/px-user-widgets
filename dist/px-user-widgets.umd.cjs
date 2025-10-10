@@ -361,6 +361,9 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
      */
     onSuccess(event) {
       this.debugLog("onSuccess", event);
+      if (this.shouldShowSuccessMessage() && event.message) {
+        this.displayMessage("success", event.message);
+      }
       this.events.emit(this.getSuccessEventName(), event);
     }
     getSuccessEventName() {
@@ -375,9 +378,16 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
       }
       return this.errorEventName || "error";
     }
+    shouldShowSuccessMessage() {
+      return this.constructor.showSuccessMessage || this.showSuccessMessage;
+    }
   }
   _init = __decoratorStart(_a);
   PxUserBaseWidget = __decorateElement(_init, 0, "PxUserBaseWidget", _PxUserBaseWidget_decorators, PxUserBaseWidget);
+  /**
+   * Show success message after successful operation.
+   */
+  __publicField(PxUserBaseWidget, "showSuccessMessage", true);
   __runInitializers(_init, 1, PxUserBaseWidget);
   function parseHtml(htmlString) {
     try {
@@ -473,14 +483,22 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
     };
     return { on, off, emit };
   }
-  function createWidgetElement(widgetName, customElementName = void 0, baseClass = PxUserBaseWidget) {
+  function createWidgetElement(widgetName, customElementName = void 0, baseClass = PxUserBaseWidget, decorator = void 0) {
     const elementName = customElementName || `px-user-${widgetName}`;
+    console.log(
+      `Creating widget element: ${elementName} with base class:`,
+      baseClass
+    );
     if (customElements.get(elementName) !== void 0) {
       return;
     }
+    baseClass = baseClass || PxUserBaseWidget;
     class Widget extends baseClass {
     }
     Widget.widgetName = widgetName;
+    if (decorator && typeof decorator === "function") {
+      decorator(Widget);
+    }
     customElements.define(elementName, Widget);
   }
   function createCustomElement(customElementName, elementClass) {
@@ -548,6 +566,10 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
     }
   }
   __publicField(PxUserLogin, "widgetName", "login");
+  /**
+   * Show success message after successful operation.
+   */
+  __publicField(PxUserLogin, "showSuccessMessage", false);
   class PxUserActivateUserWithActivationCode extends PxUserBaseWidget {
     constructor() {
       super(...arguments);

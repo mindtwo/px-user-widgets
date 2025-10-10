@@ -43,6 +43,11 @@ export class PxUserBaseWidget extends HTMLElement {
     _errorMessageEl = null;
 
     /**
+     * Show success message after successful operation.
+     */
+    static showSuccessMessage = true;
+
+    /**
      * The name of the widget, used for identification.
      * This should be set in the subclass.
      * @type {string}
@@ -374,6 +379,11 @@ export class PxUserBaseWidget extends HTMLElement {
     onSuccess(event) {
         this.debugLog('onSuccess', event);
 
+        if (this.shouldShowSuccessMessage() && event.message) {
+            // Display the success message if configured to do so
+            this.displayMessage('success', event.message);
+        }
+
         this.events.emit(this.getSuccessEventName(), event);
     }
 
@@ -391,5 +401,9 @@ export class PxUserBaseWidget extends HTMLElement {
         }
 
         return this.errorEventName || 'error';
+    }
+
+    shouldShowSuccessMessage() {
+        return this.constructor.showSuccessMessage || this.showSuccessMessage;
     }
 }

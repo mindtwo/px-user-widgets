@@ -7,6 +7,11 @@ export class PxUserLogin extends PxUserBaseWidget {
     successEventName = 'login';
 
     /**
+     * Show success message after successful operation.
+     */
+    static showSuccessMessage = false;
+
+    /**
      * Configure the widget with the necessary options.
      *
      * @param {*} config
