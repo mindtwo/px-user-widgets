@@ -485,10 +485,6 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
   }
   function createWidgetElement(widgetName, customElementName = void 0, baseClass = PxUserBaseWidget, decorator = void 0) {
     const elementName = customElementName || `px-user-${widgetName}`;
-    console.log(
-      `Creating widget element: ${elementName} with base class:`,
-      baseClass
-    );
     if (customElements.get(elementName) !== void 0) {
       return;
     }
@@ -517,10 +513,6 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
      */
     configureWidget(config) {
       const token = this.config("token");
-      console.log(
-        `Configuring ${this.constructor.widgetName} with token:`,
-        token
-      );
       if (!token) {
         throw new Error(
           `Token is required for ${this.constructor.widgetName}`
