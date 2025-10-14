@@ -7,8 +7,7 @@ import { PxUserActivateUserWithActivationCode } from './widgets/px-user-activate
 import { PxUserActivateUserAndLogin } from './widgets/px-user-activate-user-and-login';
 import { PxUserSetPasswordByForgotPasswordCodeAndLogin } from './widgets/px-user-set-password-by-forgot-password-code-and-login';
 import { PxUserSetPassword } from './widgets/px-user-set-password';
-// Old widgets
-import { PxUserEipConfig } from './components/px-user-eip-config.js';
+import { PxUserEipConfig } from './widgets/px-user-eip-config.js';
 
 // Login widget
 createCustomElement('px-user-login', PxUserLogin);
@@ -47,6 +46,4 @@ createWidgetElement(
 // Create custom element for set password
 createCustomElement('px-user-set-password', PxUserSetPassword);
 
-if (customElements.get('px-user-eip-config') === undefined) {
-    customElements.define('px-user-eip-config', PxUserEipConfig);
-}
+createCustomElement('px-user-eip-config', PxUserEipConfig);
