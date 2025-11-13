@@ -379,6 +379,9 @@ export class PxUserBaseWidget extends HTMLElement {
     onSuccess(event) {
         this.debugLog('onSuccess', event);
 
+        // Hide the error message if it was previously shown
+        this.toggleMessageElement('error', false);
+
         if (this.shouldShowSuccessMessage() && event.message) {
             // Display the success message if configured to do so
             this.displayMessage('success', event.message);

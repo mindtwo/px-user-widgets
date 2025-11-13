@@ -28,8 +28,8 @@ export class PxUserEipConfig extends PxUserBaseWidget {
         const data = response.data ?? {};
 
         if (data.success) {
-            // This was used to check whether we want to remove the iframe
-            // response.source === 'save' && response.data.success,
+            // Hide the error message if it was previously shown
+            this.toggleMessageElement('error', false);
 
             this.displayMessage('success', data.message);
 

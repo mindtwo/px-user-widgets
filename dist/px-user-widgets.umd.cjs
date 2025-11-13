@@ -361,6 +361,7 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
      */
     onSuccess(event) {
       this.debugLog("onSuccess", event);
+      this.toggleMessageElement("error", false);
       if (this.shouldShowSuccessMessage() && event.message) {
         this.displayMessage("success", event.message);
       }
@@ -676,6 +677,7 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
     showSuccess(response) {
       const data = response.data ?? {};
       if (data.success) {
+        this.toggleMessageElement("error", false);
         this.displayMessage("success", data.message);
         window.dispatchEvent(
           new CustomEvent("px-user-eip-config-success", {

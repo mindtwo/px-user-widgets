@@ -357,6 +357,7 @@ class PxUserBaseWidget extends (_a = HTMLElement) {
    */
   onSuccess(event) {
     this.debugLog("onSuccess", event);
+    this.toggleMessageElement("error", false);
     if (this.shouldShowSuccessMessage() && event.message) {
       this.displayMessage("success", event.message);
     }
@@ -672,6 +673,7 @@ class PxUserEipConfig extends PxUserBaseWidget {
   showSuccess(response) {
     const data = response.data ?? {};
     if (data.success) {
+      this.toggleMessageElement("error", false);
       this.displayMessage("success", data.message);
       window.dispatchEvent(
         new CustomEvent("px-user-eip-config-success", {
