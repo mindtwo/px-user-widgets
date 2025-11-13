@@ -12,11 +12,6 @@ export class PxUserTokenWidget extends PxUserBaseWidget {
         // Get the token from config
         const token = this.config('token');
 
-        console.log(
-            `Configuring ${this.constructor.widgetName} with token:`,
-            token,
-        );
-
         if (!token) {
             throw new Error(
                 `Token is required for ${this.constructor.widgetName}`,
