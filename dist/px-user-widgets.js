@@ -303,6 +303,12 @@ class PxUserBaseWidget extends (_a = HTMLElement) {
     }
     messageEl.style.display = display;
   }
+  hideMessageElement(type) {
+    this.toggleMessageElement(type, false);
+  }
+  showMessageElement(type) {
+    this.toggleMessageElement(type, true);
+  }
   /**
    * Display a success or error message to the user.
    * This will show the corresponding message element and set its text content.
@@ -343,8 +349,17 @@ class PxUserBaseWidget extends (_a = HTMLElement) {
    * @return {void}
    */
   onError(event) {
+    var _a2;
+    if (event.validation_code === 200) {
+      this.hideMessageElement("error");
+      return;
+    }
+    if (((_a2 = event.data) == null ? void 0 : _a2.success) === true) {
+      this.hideMessageElement("error");
+      return;
+    }
     const errorMessage = event.message ?? "An error occurred.";
-    this.error(errorMessage);
+    this.error(errorMessage, event);
     this.displayMessage("error", errorMessage);
     this.events.emit(this.getErrorEventName(), event);
   }
@@ -673,7 +688,7 @@ class PxUserEipConfig extends PxUserBaseWidget {
   showSuccess(response) {
     const data = response.data ?? {};
     if (data.success) {
-      this.toggleMessageElement("error", false);
+      this.hideMessageElement("error");
       this.displayMessage("success", data.message);
       window.dispatchEvent(
         new CustomEvent("px-user-eip-config-success", {

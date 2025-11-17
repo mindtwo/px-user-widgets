@@ -29,7 +29,7 @@ export class PxUserEipConfig extends PxUserBaseWidget {
 
         if (data.success) {
             // Hide the error message if it was previously shown
-            this.toggleMessageElement('error', false);
+            this.hideMessageElement('error');
 
             this.displayMessage('success', data.message);
 

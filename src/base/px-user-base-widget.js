@@ -310,6 +310,14 @@ export class PxUserBaseWidget extends HTMLElement {
         messageEl.style.display = display;
     }
 
+    hideMessageElement(type) {
+        this.toggleMessageElement(type, false);
+    }
+
+    showMessageElement(type) {
+        this.toggleMessageElement(type, true);
+    }
+
     /**
      * Display a success or error message to the user.
      * This will show the corresponding message element and set its text content.
@@ -359,11 +367,25 @@ export class PxUserBaseWidget extends HTMLElement {
      * @return {void}
      */
     onError(event) {
+        if (event.validation_code === 200) {
+            // If the validation code is 200, it means the error is not critical
+            this.hideMessageElement('error');
+
+            return;
+        }
+
+        // Check if the error has data.succes = true
+        if (event.data?.success === true) {
+            // If the error is not critical, hide the error message
+            this.hideMessageElement('error');
+            return;
+        }
+
         // Get the error message from the event
         const errorMessage = event.message ?? 'An error occurred.';
 
         // Log the error message
-        this.error(errorMessage);
+        this.error(errorMessage, event);
         this.displayMessage('error', errorMessage);
 
         this.events.emit(this.getErrorEventName(), event);
