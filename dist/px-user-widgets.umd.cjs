@@ -353,7 +353,7 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
      * @return {void}
      */
     onError(event) {
-      var _a2;
+      var _a2, _b;
       if (event.validation_code === 200) {
         this.hideMessageElement("error");
         return;
@@ -362,8 +362,15 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
         this.hideMessageElement("error");
         return;
       }
-      const errorMessage = event.message ?? "An error occurred.";
-      this.error(errorMessage, event);
+      const errorMessage = ((_b = event.data) == null ? void 0 : _b.message) ?? event.message;
+      if (!errorMessage) {
+        this.error(
+          "An unknown error occurred. Response is not as expected.",
+          event
+        );
+        return;
+      }
+      this.error(errorMessage);
       this.displayMessage("error", errorMessage);
       this.events.emit(this.getErrorEventName(), event);
     }

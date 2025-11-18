@@ -382,10 +382,19 @@ export class PxUserBaseWidget extends HTMLElement {
         }
 
         // Get the error message from the event
-        const errorMessage = event.message ?? 'An error occurred.';
+        const errorMessage = event.data?.message ?? event.message;
+
+        if (!errorMessage) {
+            this.error(
+                'An unknown error occurred. Response is not as expected.',
+                event,
+            );
+
+            return;
+        }
 
         // Log the error message
-        this.error(errorMessage, event);
+        this.error(errorMessage);
         this.displayMessage('error', errorMessage);
 
         this.events.emit(this.getErrorEventName(), event);
