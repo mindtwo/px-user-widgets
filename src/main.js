@@ -3,6 +3,7 @@ import { createCustomElement, createWidgetElement } from './helper/index.js';
 import { PxUserTokenWidget } from './base/px-user-token-widget.js';
 // Special widgets
 import { PxUserLogin } from './widgets/px-user-login';
+import { PxUserLoginOidc } from './widgets/px-user-login-oidc';
 import { PxUserActivateUserWithActivationCode } from './widgets/px-user-activate-user-with-activation-code';
 import { PxUserActivateUserAndLogin } from './widgets/px-user-activate-user-and-login';
 import { PxUserSetPasswordByForgotPasswordCodeAndLogin } from './widgets/px-user-set-password-by-forgot-password-code-and-login';
@@ -11,6 +12,8 @@ import { PxUserEipConfig } from './widgets/px-user-eip-config.js';
 
 // Login widget
 createCustomElement('px-user-login', PxUserLogin);
+
+createCustomElement('px-user-oidc', PxUserLoginOidc);
 
 // Create custom element for forgot password
 createWidgetElement('password-forgot', 'px-user-forgot-password');
