@@ -644,7 +644,7 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
       if (!((_a2 = window.location) == null ? void 0 : _a2.origin)) {
         return "";
       }
-      return window.location.origin;
+      return `${window.location.origin}/callback`;
     }
     get verifierStorageKey() {
       return this.config("verifierStorageKey", DEFAULT_VERIFIER_KEY);

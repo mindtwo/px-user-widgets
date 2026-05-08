@@ -102,7 +102,7 @@ export class PxUserLoginOidc extends PxUserBaseWidget {
             return '';
         }
 
-        return window.location.origin;
+        return `${window.location.origin}/callback`;
     }
 
     get verifierStorageKey() {
