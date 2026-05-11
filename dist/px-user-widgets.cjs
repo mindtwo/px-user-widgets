@@ -1,3 +1,4 @@
+"use strict";
 var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
@@ -47,7 +48,7 @@ var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read fr
 var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
 var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 var _PxUserBaseWidget_decorators, _init, _a;
-import { generatePkce, storePkce, DEFAULT_VERIFIER_KEY, DEFAULT_STATE_KEY, readPkce } from "./oidc.js";
+const oidc = require("./oidc.cjs");
 var stringCamelCase = camelCase;
 var wordSeparatorsRegEx = /[\s\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]+/;
 var basicCamelRegEx = /^[a-z\u00E0-\u00FCA-Z\u00C0-\u00DC][\d|a-z\u00E0-\u00FCA-Z\u00C0-\u00DC]*$/;
@@ -170,8 +171,8 @@ class PxUserBaseWidget extends (_a = HTMLElement) {
     this.loadConfig();
     this.createRootElement();
     this.createMessageElements();
-    waitForObject("PxModUser").then((module) => {
-      this.initUserModule(module);
+    waitForObject("PxModUser").then((module2) => {
+      this.initUserModule(module2);
       this.mountIFrame();
       this.events.emit("mounted");
     });
@@ -193,8 +194,8 @@ class PxUserBaseWidget extends (_a = HTMLElement) {
    *
    * @param {Function} module - The module class to initialize.
    */
-  initUserModule(module) {
-    this.module = new module({
+  initUserModule(module2) {
+    this.module = new module2({
       stage: this.config("stage", window.PX_USER_STAGE),
       domain: this.config("domain", window.PX_USER_DOMAIN),
       tenant: this.config("tenant", window.PX_USER_TENANT),
@@ -574,8 +575,8 @@ class PxUserLoginOidc extends PxUserBaseWidget {
    */
   async mountIFrame() {
     if (!this.config("codeChallenge")) {
-      const pkce = await generatePkce();
-      storePkce(pkce, {
+      const pkce = await oidc.generatePkce();
+      oidc.storePkce(pkce, {
         verifierKey: this.verifierStorageKey,
         stateKey: this.stateStorageKey
       });
@@ -644,10 +645,10 @@ class PxUserLoginOidc extends PxUserBaseWidget {
     return `${window.location.origin}/callback`;
   }
   get verifierStorageKey() {
-    return this.config("verifierStorageKey", DEFAULT_VERIFIER_KEY);
+    return this.config("verifierStorageKey", oidc.DEFAULT_VERIFIER_KEY);
   }
   get stateStorageKey() {
-    return this.config("stateStorageKey", DEFAULT_STATE_KEY);
+    return this.config("stateStorageKey", oidc.DEFAULT_STATE_KEY);
   }
   /**
    * Read the persisted verifier + state from sessionStorage. Convenience
@@ -658,7 +659,7 @@ class PxUserLoginOidc extends PxUserBaseWidget {
    * @return {{verifier: string|null, state: string|null}}
    */
   static readPkce(options) {
-    return readPkce(options);
+    return oidc.readPkce(options);
   }
 }
 __publicField(PxUserLoginOidc, "widgetName", "login-oidc");
