@@ -1,7 +1,11 @@
 import { PxUserBaseWidget } from '../base/px-user-base-widget.js';
-
-const DEFAULT_VERIFIER_KEY = 'px-oidc-verifier';
-const DEFAULT_STATE_KEY = 'px-oidc-state';
+import {
+    DEFAULT_STATE_KEY,
+    DEFAULT_VERIFIER_KEY,
+    generatePkce,
+    readPkce,
+    storePkce,
+} from '../helper/pkce.js';
 
 export class PxUserLoginOidc extends PxUserBaseWidget {
     static widgetName = 'login-oidc';
@@ -20,14 +24,15 @@ export class PxUserLoginOidc extends PxUserBaseWidget {
      */
     async mountIFrame() {
         if (!this.config('codeChallenge')) {
-            const { verifier, state, challenge } =
-                await PxUserLoginOidc.generatePkce();
+            const pkce = await generatePkce();
 
-            sessionStorage.setItem(this.verifierStorageKey, verifier);
-            sessionStorage.setItem(this.stateStorageKey, state);
+            storePkce(pkce, {
+                verifierKey: this.verifierStorageKey,
+                stateKey: this.stateStorageKey,
+            });
 
-            this._generatedChallenge = challenge;
-            this._generatedState = state;
+            this._generatedChallenge = pkce.challenge;
+            this._generatedState = pkce.state;
         }
 
         super.mountIFrame();
@@ -57,12 +62,12 @@ export class PxUserLoginOidc extends PxUserBaseWidget {
             'S256',
         );
 
+        config.scope = this.config('scope', 'openid');
+
         const state = this.config('state') ?? this._generatedState;
         if (state) {
             config.state = state;
         }
-
-        config.scope = this.config('scope', 'openid');
 
         const prompt = this.config('prompt');
         if (prompt) {
@@ -114,55 +119,14 @@ export class PxUserLoginOidc extends PxUserBaseWidget {
     }
 
     /**
-     * Generate a PKCE verifier/challenge pair and a random state value.
+     * Read the persisted verifier + state from sessionStorage. Convenience
+     * wrapper around the `readPkce` helper, kept on the class for callers
+     * that already import the widget.
      *
-     * @return {Promise<{verifier: string, challenge: string, state: string}>}
-     */
-    static async generatePkce() {
-        const rand = (n) => crypto.getRandomValues(new Uint8Array(n));
-
-        const verifier = base64UrlEncode(rand(32));
-        const state = base64UrlEncode(rand(16));
-
-        const digest = await crypto.subtle.digest(
-            'SHA-256',
-            new TextEncoder().encode(verifier),
-        );
-
-        return {
-            verifier,
-            state,
-            challenge: base64UrlEncode(new Uint8Array(digest)),
-        };
-    }
-
-    /**
-     * Read the persisted verifier + state from sessionStorage. Use this on
-     * your OIDC callback page to complete the token exchange.
-     *
-     * @param {{verifierKey?: string, stateKey?: string, consume?: boolean}} [options]
+     * @param {Parameters<typeof readPkce>[0]} [options]
      * @return {{verifier: string|null, state: string|null}}
      */
-    static readPkce({
-        verifierKey = DEFAULT_VERIFIER_KEY,
-        stateKey = DEFAULT_STATE_KEY,
-        consume = true,
-    } = {}) {
-        const verifier = sessionStorage.getItem(verifierKey);
-        const state = sessionStorage.getItem(stateKey);
-
-        if (consume) {
-            sessionStorage.removeItem(verifierKey);
-            sessionStorage.removeItem(stateKey);
-        }
-
-        return { verifier, state };
+    static readPkce(options) {
+        return readPkce(options);
     }
-}
-
-function base64UrlEncode(bytes) {
-    return btoa(String.fromCharCode(...bytes))
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=+$/, '');
 }

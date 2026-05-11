@@ -6,12 +6,16 @@
     ],
     "version": "3.0.10",
     "description": "Wrapper for PX User Widgets",
-    "main": "./dist/px-user-widgets.umd.cjs",
+    "main": "./dist/px-user-widgets.cjs",
     "module": "./dist/px-user-widgets.js",
     "exports": {
         ".": {
             "import": "./dist/px-user-widgets.js",
-            "require": "./dist/px-user-widgets.umd.cjs"
+            "require": "./dist/px-user-widgets.cjs"
+        },
+        "./oidc": {
+            "import": "./dist/oidc.js",
+            "require": "./dist/oidc.cjs"
         }
     },
     "scripts": {
