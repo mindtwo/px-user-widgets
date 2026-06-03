@@ -21,9 +21,15 @@ export class PxUserLoginOidc extends PxUserBaseWidget {
      * If no code_challenge was supplied, generate a PKCE pair + state and
      * persist verifier/state in sessionStorage so the callback page can
      * complete the token exchange.
+     *
+     * Skipped when the current URL already carries OIDC redirect params
+     * (`code`, `state`, `error`) — e.g. when the EIP login flow bounces
+     * back through this page on its way to the callback. Regenerating
+     * here would overwrite the verifier/state that the in-flight
+     * authorization request was bound to, causing a PKCE/state mismatch.
      */
     async mountIFrame() {
-        if (!this.config('codeChallenge')) {
+        if (!this.config('codeChallenge') && !this.isInOidcRedirectFlow()) {
             const pkce = await generatePkce();
 
             storePkce(pkce, {
@@ -36,6 +42,18 @@ export class PxUserLoginOidc extends PxUserBaseWidget {
         }
 
         super.mountIFrame();
+    }
+
+    isInOidcRedirectFlow() {
+        const search = window.location?.search;
+        if (!search) {
+            return false;
+        }
+
+        const params = new URLSearchParams(search);
+        return (
+            params.has('code') || params.has('state') || params.has('error')
+        );
     }
 
     /**
