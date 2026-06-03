@@ -600,7 +600,10 @@ class PxUserLoginOidc extends PxUserBaseWidget {
     };
     config.response_type = this.config("responseType", "code");
     config.client_id = this.config("clientId");
-    config.redirect_uri = this.config("redirectUri", this.getRedirectUri());
+    config.redirect_uri = this.config(
+      "redirectUri",
+      this.getDefaultRedirectUri()
+    );
     config.code_challenge = this.config("codeChallenge") ?? this._generatedChallenge;
     config.code_challenge_method = this.config(
       "codeChallengeMethod",
@@ -633,16 +636,19 @@ class PxUserLoginOidc extends PxUserBaseWidget {
     }
     if (this.config("showLoginWithEip", false)) {
       config.showLoginWithEip = true;
-      config.eipLoginRedirectUri = this.getRedirectUri();
+      config.eipLoginRedirectUri = this.config(
+        "eipLoginRedirectUri",
+        this.getDefaultRedirectUri()
+      );
     }
     return config;
   }
-  getRedirectUri() {
+  getDefaultRedirectUri() {
     var _a2;
     if (!((_a2 = window.location) == null ? void 0 : _a2.origin)) {
       return "";
     }
-    return `${window.location.origin}/callback`;
+    return `${window.location.origin}`;
   }
   get verifierStorageKey() {
     return this.config("verifierStorageKey", oidc.DEFAULT_VERIFIER_KEY);
