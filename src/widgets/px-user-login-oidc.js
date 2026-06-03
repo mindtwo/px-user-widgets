@@ -29,17 +29,31 @@ export class PxUserLoginOidc extends PxUserBaseWidget {
      * authorization request was bound to, causing a PKCE/state mismatch.
      */
     async mountIFrame() {
-        if (!this.config('codeChallenge') && !this.isInOidcRedirectFlow()) {
-            const pkce = await generatePkce();
+        if (this.config('codeChallenge')) {
+            super.mountIFrame();
+            return;
+        }
 
-            storePkce(pkce, {
+        if (this.isInOidcRedirectFlow()) {
+            const stored = readPkce({
                 verifierKey: this.verifierStorageKey,
                 stateKey: this.stateStorageKey,
+                consume: false,
             });
-
-            this._generatedChallenge = pkce.challenge;
-            this._generatedState = pkce.state;
+            this._generatedState = stored.state;
+            super.mountIFrame();
+            return;
         }
+
+        const pkce = await generatePkce();
+
+        storePkce(pkce, {
+            verifierKey: this.verifierStorageKey,
+            stateKey: this.stateStorageKey,
+        });
+
+        this._generatedChallenge = pkce.challenge;
+        this._generatedState = pkce.state;
 
         super.mountIFrame();
     }
