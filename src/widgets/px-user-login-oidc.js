@@ -54,7 +54,10 @@ export class PxUserLoginOidc extends PxUserBaseWidget {
 
         config.response_type = this.config('responseType', 'code');
         config.client_id = this.config('clientId');
-        config.redirect_uri = this.config('redirectUri', this.getRedirectUri());
+        config.redirect_uri = this.config(
+            'redirectUri',
+            this.getDefaultRedirectUri(),
+        );
         config.code_challenge =
             this.config('codeChallenge') ?? this._generatedChallenge;
         config.code_challenge_method = this.config(
@@ -96,18 +99,21 @@ export class PxUserLoginOidc extends PxUserBaseWidget {
 
         if (this.config('showLoginWithEip', false)) {
             config.showLoginWithEip = true;
-            config.eipLoginRedirectUri = this.getRedirectUri();
+            config.eipLoginRedirectUri = this.config(
+                'eipLoginRedirectUri',
+                this.getDefaultRedirectUri(),
+            );
         }
 
         return config;
     }
 
-    getRedirectUri() {
+    getDefaultRedirectUri() {
         if (!window.location?.origin) {
             return '';
         }
 
-        return `${window.location.origin}/callback`;
+        return `${window.location.origin}`;
     }
 
     get verifierStorageKey() {
