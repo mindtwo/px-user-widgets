@@ -346,9 +346,11 @@ class PxUserBaseWidget extends (_a = HTMLElement) {
    * @return {void}
    */
   onError(event) {
-    const errorMessage = event.message ?? "An error occurred.";
-    this.error(errorMessage);
-    this.displayMessage("error", errorMessage);
+    const errorMessage = event.message;
+    this.error(errorMessage ?? "An error occurred.");
+    if (errorMessage) {
+      this.displayMessage("error", errorMessage);
+    }
     this.events.emit(this.getErrorEventName(), event);
   }
   /**

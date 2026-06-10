@@ -361,11 +361,14 @@ export class PxUserBaseWidget extends HTMLElement {
      */
     onError(event) {
         // Get the error message from the event
-        const errorMessage = event.message ?? 'An error occurred.';
+        const errorMessage = event.message;
 
         // Log the error message
-        this.error(errorMessage);
-        this.displayMessage('error', errorMessage);
+        this.error(errorMessage ?? 'An error occurred.');
+
+        if (errorMessage) {
+            this.displayMessage('error', errorMessage);
+        }
 
         this.events.emit(this.getErrorEventName(), event);
     }
