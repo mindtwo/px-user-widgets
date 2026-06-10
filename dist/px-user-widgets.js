@@ -47,7 +47,7 @@ var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read fr
 var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
 var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
 var _PxUserBaseWidget_decorators, _init, _a;
-import { generatePkce, storePkce, DEFAULT_VERIFIER_KEY, DEFAULT_STATE_KEY, readPkce } from "./oidc.js";
+import { readPkce, generatePkce, storePkce, DEFAULT_VERIFIER_KEY, DEFAULT_STATE_KEY } from "./oidc.js";
 var stringCamelCase = camelCase;
 var wordSeparatorsRegEx = /[\s\u2000-\u206F\u2E00-\u2E7F\\'!"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]+/;
 var basicCamelRegEx = /^[a-z\u00E0-\u00FCA-Z\u00C0-\u00DC][\d|a-z\u00E0-\u00FCA-Z\u00C0-\u00DC]*$/;
@@ -151,7 +151,8 @@ class PxUserBaseWidget extends (_a = HTMLElement) {
       fallbackButtonText,
       cssUrl: this.cssUrl,
       onSuccess: (response) => this.onSuccess(response),
-      onError: (response) => this.onError(response)
+      onError: (response) => this.onError(response),
+      onResetError: (response) => this.onResetError(response)
     };
     if (typeof this.configureWidget === "function") {
       const c = this.configureWidget(config);
@@ -364,6 +365,11 @@ class PxUserBaseWidget extends (_a = HTMLElement) {
     }
     this.events.emit(this.getSuccessEventName(), event);
   }
+  onResetError(event) {
+    this.debugLog("onResetError", event);
+    this.toggleMessageElement("error", false);
+    this.events.emit("reset", event);
+  }
   getSuccessEventName() {
     if (this.constructor.successEventName) {
       return this.constructor.successEventName;
@@ -571,18 +577,45 @@ class PxUserLoginOidc extends PxUserBaseWidget {
    * If no code_challenge was supplied, generate a PKCE pair + state and
    * persist verifier/state in sessionStorage so the callback page can
    * complete the token exchange.
+   *
+   * Skipped when the current URL already carries OIDC redirect params
+   * (`code`, `state`, `error`) — e.g. when the EIP login flow bounces
+   * back through this page on its way to the callback. Regenerating
+   * here would overwrite the verifier/state that the in-flight
+   * authorization request was bound to, causing a PKCE/state mismatch.
    */
   async mountIFrame() {
-    if (!this.config("codeChallenge")) {
-      const pkce = await generatePkce();
-      storePkce(pkce, {
-        verifierKey: this.verifierStorageKey,
-        stateKey: this.stateStorageKey
-      });
-      this._generatedChallenge = pkce.challenge;
-      this._generatedState = pkce.state;
+    if (this.config("codeChallenge")) {
+      super.mountIFrame();
+      return;
     }
+    if (this.isInOidcRedirectFlow()) {
+      const stored = readPkce({
+        verifierKey: this.verifierStorageKey,
+        stateKey: this.stateStorageKey,
+        consume: false
+      });
+      this._generatedState = stored.state;
+      super.mountIFrame();
+      return;
+    }
+    const pkce = await generatePkce();
+    storePkce(pkce, {
+      verifierKey: this.verifierStorageKey,
+      stateKey: this.stateStorageKey
+    });
+    this._generatedChallenge = pkce.challenge;
+    this._generatedState = pkce.state;
     super.mountIFrame();
+  }
+  isInOidcRedirectFlow() {
+    var _a2;
+    const search = (_a2 = window.location) == null ? void 0 : _a2.search;
+    if (!search) {
+      return false;
+    }
+    const params = new URLSearchParams(search);
+    return params.has("code") || params.has("state") || params.has("error");
   }
   /**
    * Configure the OIDC widget per the Authorization Code + PKCE flow.

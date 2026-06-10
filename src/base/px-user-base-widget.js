@@ -96,6 +96,7 @@ export class PxUserBaseWidget extends HTMLElement {
             cssUrl: this.cssUrl,
             onSuccess: (response) => this.onSuccess(response),
             onError: (response) => this.onError(response),
+            onResetError: (response) => this.onResetError(response),
         };
 
         if (typeof this.configureWidget === 'function') {
@@ -388,6 +389,14 @@ export class PxUserBaseWidget extends HTMLElement {
         }
 
         this.events.emit(this.getSuccessEventName(), event);
+    }
+
+    onResetError(event) {
+        this.debugLog('onResetError', event);
+
+        this.toggleMessageElement('error', false);
+
+        this.events.emit('reset', event);
     }
 
     getSuccessEventName() {
