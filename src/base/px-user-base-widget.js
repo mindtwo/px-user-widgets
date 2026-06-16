@@ -99,6 +99,16 @@ export class PxUserBaseWidget extends HTMLElement {
             onResetError: (response) => this.onResetError(response),
         };
 
+        const labels = this.config('labels');
+
+        if (labels) {
+            config.labels = labels;
+        }
+
+        console.log(labels);
+
+        console.log(config);
+
         if (typeof this.configureWidget === 'function') {
             // If the subclass has a configureWidget method, call it to allow further customization
             const c = this.configureWidget(config);
@@ -249,28 +259,47 @@ export class PxUserBaseWidget extends HTMLElement {
                 this.debugLog('loadConfig', 'Skipping attribute', attr.name);
                 continue;
             }
-            // Convert attribute name to camelCase and set the value
-            const [opt, modifier] = attr.name.split('_');
 
-            const optionName = camelCase(opt.replace('data-', ''));
+            const optionName = camelCase(attr.name.replace('data-', ''));
 
-            let value = attr.value;
-            if (modifier === 'json') {
-                try {
-                    value = JSON.parse(attr.value);
-                } catch (e) {
-                    this.warn(
-                        `Failed to parse JSON for ${optionName}:`,
-                        e,
-                        attr.value,
-                    );
-                }
-            }
-
-            this._config[optionName] = value;
+            this._config[optionName] = this._parseAttrValue(
+                optionName,
+                attr.value,
+            );
         }
 
         this.debugLog('config loaded for widget');
+    }
+
+    /**
+     * Parse an attribute value, auto-detecting JSON objects/arrays.
+     * Values wrapped in {…} or […] are parsed as JSON; everything else is
+     * returned as the raw string.
+     *
+     * @param {string} optionName
+     * @param {string} rawValue
+     * @returns {*}
+     */
+    _parseAttrValue(optionName, rawValue) {
+        const trimmed = rawValue.trim();
+        const looksLikeJson =
+            (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+            (trimmed.startsWith('[') && trimmed.endsWith(']'));
+
+        if (!looksLikeJson) {
+            return rawValue;
+        }
+
+        try {
+            return JSON.parse(trimmed);
+        } catch (e) {
+            this.warn(
+                `Attribute "${optionName}" looks like JSON but failed to parse, keeping as string:`,
+                e,
+                rawValue,
+            );
+            return rawValue;
+        }
     }
 
     /**
