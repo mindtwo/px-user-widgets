@@ -105,10 +105,6 @@ export class PxUserBaseWidget extends HTMLElement {
             config.labels = labels;
         }
 
-        console.log(labels);
-
-        console.log(config);
-
         if (typeof this.configureWidget === 'function') {
             // If the subclass has a configureWidget method, call it to allow further customization
             const c = this.configureWidget(config);
