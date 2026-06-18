@@ -158,8 +158,6 @@ class PxUserBaseWidget extends (_a = HTMLElement) {
     if (labels) {
       config.labels = labels;
     }
-    console.log(labels);
-    console.log(config);
     if (typeof this.configureWidget === "function") {
       const c = this.configureWidget(config);
       config = c;
