@@ -1,5 +1,8 @@
 # px-user OIDC widget — integration brief
 
+> Building the **other** side — an app that sends users to a mindtwo-hosted login UI and gets them back with a code? You don't need
+> the widget. See [`oidc-external-app-integration.md`](./oidc-external-app-integration.md).
+
 You're integrating `@mindtwo/px-user-widgets`' OIDC login widget into this frontend. The widget renders the PX-User OIDC sign-in form and kicks off the Authorization Code + PKCE flow against the PX-User authorize endpoint. Your app is responsible for handling the redirect callback and exchanging the code for tokens.
 
 ## 1. Install + bootstrap
