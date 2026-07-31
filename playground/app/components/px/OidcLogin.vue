@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PxUserWidgetEvent } from '~/composables/usePxUserWidget'
+import type { PxUserWidgetEvent } from '~/composables/usePxUserWidget';
 
 /**
  * <px-user-oidc> — hosts the PX-User OIDC sign-in form on our own domain and
@@ -14,33 +14,33 @@ import type { PxUserWidgetEvent } from '~/composables/usePxUserWidget'
  */
 const props = withDefaults(
     defineProps<{
-        containerId?: string
-        minHeight?: string
+        containerId?: string;
+        minHeight?: string;
         /** Defaults to the configured client id. */
-        clientId?: string
+        clientId?: string;
         /** Defaults to `${appUrl}/callback`. Must be registered exactly. */
-        redirectUri?: string
-        scope?: string
+        redirectUri?: string;
+        scope?: string;
         /** `login` | `none` | `select_account`. Omitted when unset. */
-        prompt?: string
-        showEip?: boolean
-        eipRedirectUri?: string
+        prompt?: string;
+        showEip?: boolean;
+        eipRedirectUri?: string;
         /** Keeps a proxied authorize request in the address bar (docs §7). */
-        keepAuthorizeParamsInUrl?: boolean
+        keepAuthorizeParamsInUrl?: boolean;
     }>(),
     { containerId: 'px-user-oidc', minHeight: '360px' },
-)
+);
 
 const emit = defineEmits<{
-    login: [event: PxUserWidgetEvent]
-    error: [event: PxUserWidgetEvent]
-    reset: [event: PxUserWidgetEvent]
-    mounted: [event: PxUserWidgetEvent]
-}>()
+    login: [event: PxUserWidgetEvent];
+    error: [event: PxUserWidgetEvent];
+    reset: [event: PxUserWidgetEvent];
+    mounted: [event: PxUserWidgetEvent];
+}>();
 
-const { appUrl, pxUser } = useRuntimeConfig().public
+const { appUrl, pxUser } = useRuntimeConfig().public;
 
-const el = ref<HTMLElement | null>(null)
+const el = ref<HTMLElement | null>(null);
 
 const attrs = usePxUserWidgetAttrs(
     () => props.containerId,
@@ -53,21 +53,27 @@ const attrs = usePxUserWidgetAttrs(
         'data-eip-login-redirect-uri': props.eipRedirectUri,
         'data-keep-authorize-params-in-url': props.keepAuthorizeParamsInUrl,
     }),
-)
+);
 
-const widgetKey = usePxUserWidgetKey(attrs)
+const widgetKey = usePxUserWidgetKey(attrs);
 
 // The generated emit overloads can't take a name chosen at runtime, so widen
 // it once here rather than casting at every call.
-const forwardEvent = emit as unknown as (name: string, event: PxUserWidgetEvent) => void
+const forwardEvent = emit as unknown as (
+    name: string,
+    event: PxUserWidgetEvent,
+) => void;
 
-usePxUserWidgetEvents(el, ['login', 'error', 'reset', 'mounted'], forwardEvent)
+usePxUserWidgetEvents(el, ['login', 'error', 'reset', 'mounted'], forwardEvent);
 
 /** True while the widget is completing another app's authorize request. */
 const isProxying = () =>
-    Boolean((el.value as unknown as { isProxyingAuthorizeRequest?: boolean })?.isProxyingAuthorizeRequest)
+    Boolean(
+        (el.value as unknown as { isProxyingAuthorizeRequest?: boolean })
+            ?.isProxyingAuthorizeRequest,
+    );
 
-defineExpose({ el, attrs, isProxying })
+defineExpose({ el, attrs, isProxying });
 </script>
 
 <template>

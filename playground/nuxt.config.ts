@@ -8,9 +8,9 @@ export default defineNuxtConfig({
     css: ['~/assets/css/main.css'],
 
     $development: {
-        // devServer: {
-        //     https: true,
-        // },
+        devServer: {
+            https: true,
+        },
     },
 
     // The package registers its <px-user-*> elements at runtime via
