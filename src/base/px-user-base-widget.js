@@ -232,6 +232,33 @@ export class PxUserBaseWidget extends HTMLElement {
     }
 
     /**
+     * Get a config value as a boolean.
+     *
+     * Attribute values are always strings, so `data-foo="false"` would be
+     * truthy if read with `config()` directly. Only the strings that a human
+     * would write to mean "off" are treated as false.
+     *
+     * @param {string} optionName
+     * @param {boolean} [fallback]
+     * @returns {boolean}
+     */
+    configBool(optionName, fallback = false) {
+        const value = this.config(optionName);
+
+        if (value === undefined || value === null || value === '') {
+            return fallback;
+        }
+
+        if (typeof value === 'string') {
+            return !['false', '0', 'no', 'off'].includes(
+                value.trim().toLowerCase(),
+            );
+        }
+
+        return Boolean(value);
+    }
+
+    /**
      * Load the config values from the element attributes
      * and set them to the _config object.
      *
