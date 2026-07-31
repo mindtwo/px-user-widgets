@@ -1,0 +1,181 @@
+/* ---------------------------------------------------------------------------
+ * px-user widget stylesheet — loaded INTO the widget's iframe.
+ *
+ * How it gets there: each widget resolves `data-css-path` against
+ * `data-app-url`, so with data-app-url=http://localhost:3000 and
+ * data-css-path=css/px-user.css the widget requests
+ * http://localhost:3000/css/px-user.css and injects it into the iframe
+ * document. (An absolute http(s):// or // value is used as-is instead.)
+ *
+ * That means:
+ *   - nothing in here affects the host page;
+ *   - the host page's own CSS does NOT reach the widget's form;
+ *   - editing this file and reloading is enough to restyle the widget.
+ *
+ * The markup inside the iframe belongs to the PX-User host script, so the
+ * selectors below are deliberately generic — element and attribute selectors
+ * rather than guessed class names. Inspect the iframe to find more.
+ * ------------------------------------------------------------------------- */
+
+:root {
+    --px-text: #1c1f24;
+    --px-muted: #6b7280;
+    --px-border: #d7dae1;
+    --px-border-focus: #2f5bd7;
+    --px-accent: #2f5bd7;
+    --px-accent-text: #ffffff;
+    --px-danger: #c02a4a;
+    --px-ok: #157f3d;
+    --px-radius: 8px;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--px-text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    margin: 0;
+}
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+}
+
+legend,
+h1,
+h2,
+h3 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+}
+
+label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--px-muted);
+    margin-bottom: 0.25rem;
+}
+
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='tel'],
+select,
+textarea {
+    width: 100%;
+    font: inherit;
+    font-size: 0.9375rem;
+    padding: 0.55rem 0.7rem;
+    color: var(--px-text);
+    background: #fff;
+    border: 1px solid var(--px-border);
+    border-radius: var(--px-radius);
+    outline: none;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--px-border-focus);
+    box-shadow: 0 0 0 3px rgb(47 91 215 / 0.15);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+    background: #f4f5f7;
+    color: var(--px-muted);
+}
+
+/* The login widgets enable a show/hide-password icon button inside the field. */
+button[type='button'] svg,
+button[type='button'] img {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+}
+
+button,
+input[type='submit'] {
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    padding: 0.55rem 1rem;
+    border-radius: var(--px-radius);
+    border: 1px solid var(--px-accent);
+    background: var(--px-accent);
+    color: var(--px-accent-text);
+    cursor: pointer;
+}
+
+button:hover:not(:disabled),
+input[type='submit']:hover:not(:disabled) {
+    filter: brightness(1.08);
+}
+
+button:disabled,
+input[type='submit']:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Secondary actions — "login with Entra ID", "back", links styled as buttons. */
+button[type='button']:not([class*='toggle']) {
+    background: #fff;
+    color: var(--px-text);
+    border-color: var(--px-border);
+}
+
+button[type='button']:not([class*='toggle']):hover:not(:disabled) {
+    background: #f4f5f7;
+    filter: none;
+}
+
+a {
+    color: var(--px-accent);
+}
+
+ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.8125rem;
+    color: var(--px-muted);
+}
+
+/* Password-rule hints and validation output. */
+[class*='error'],
+[class*='invalid'] {
+    color: var(--px-danger);
+    font-size: 0.8125rem;
+}
+
+[class*='success'],
+[class*='valid']:not([class*='invalid']) {
+    color: var(--px-ok);
+    font-size: 0.8125rem;
+}
