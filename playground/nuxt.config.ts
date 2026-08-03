@@ -30,10 +30,14 @@ export default defineNuxtConfig({
 
         // Server-only. None of this is ever serialised into the client payload.
         pxUser: {
-            clientSecret: '', // NUXT_PX_USER_CLIENT_SECRET
+            // No client secret: the token endpoint authenticates with PKCE
+            // alone. Nothing in either flow sends one.
             context: '', // NUXT_PX_USER_CONTEXT — tenant path segment, e.g. plx:pxc
             authorizationUrl: '', // NUXT_PX_USER_AUTHORIZATION_URL — hosted login host (service mode)
-            oidcHost: 'https://user-frontend.api.preprod.pl-x.cloud',
+            // Discovery, token and userinfo live on the API host, not on
+            // user-frontend — that one only serves the authorize UI and answers
+            // 500 for every path under it, including /.well-known/.
+            oidcHost: 'https://user.api.preprod.pl-x.cloud',
             apiHost: 'https://user.api.preprod.pl-x.cloud',
         },
 

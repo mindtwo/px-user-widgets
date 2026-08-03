@@ -3,8 +3,10 @@ import { createHash, randomBytes } from 'node:crypto'
 /**
  * OIDC plumbing for both flows the playground can run.
  *
- * Everything here is server-side on purpose: the code-for-token exchange needs
- * the `client_secret`, which makes us a confidential client. See
+ * Everything here is server-side on purpose — but not because of a
+ * `client_secret`: the token endpoint authenticates the request with PKCE
+ * alone, so we are a public client. What stays on the server is the *verifier*,
+ * which is the whole point of the service flow. See
  * ../../../docs/oidc-external-app-integration.md.
  */
 
@@ -134,15 +136,18 @@ export function buildAuthorizationUrl(): AuthorizationRequest {
 }
 
 /**
- * Exchanges the authorization code for tokens. The only place `client_secret`
- * is read, and deliberately without retries: the code has a 5 second TTL, so a
- * backoff would guarantee failure rather than recover from it.
+ * Exchanges the authorization code for tokens. Deliberately without retries:
+ * the code has a 5 second TTL, so a backoff would guarantee failure rather than
+ * recover from it.
+ *
+ * No `client_secret`. The endpoint authenticates the request with the PKCE
+ * verifier alone — sending one is neither required nor expected, and app-teach
+ * (Domain\User\Services\OidcTokenExchangeService) exchanges the same way.
  */
 export async function exchangeAuthorizationCode(options: {
     code: string
     codeVerifier: string
 }): Promise<TokenResponse> {
-    const { clientSecret } = pxUserConfig()
     const { pxUser } = useRuntimeConfig().public
 
     const discovery = await discoverOidc()
@@ -162,7 +167,6 @@ export async function exchangeAuthorizationCode(options: {
         code: options.code,
         code_verifier: options.codeVerifier,
         client_id: requireConfig(pxUser.clientId, 'NUXT_PUBLIC_PX_USER_CLIENT_ID'),
-        client_secret: requireConfig(clientSecret, 'NUXT_PX_USER_CLIENT_SECRET'),
         redirect_uri: pxUserRedirectUri(),
     })
 

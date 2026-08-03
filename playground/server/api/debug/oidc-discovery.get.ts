@@ -12,8 +12,7 @@ export default defineEventHandler(async (event) => {
         oidcHost: pxUser.oidcHost,
         apiHost: pxUser.apiHost,
         context: pxUser.context || null,
-        // Presence only — never the values.
-        clientSecretSet: Boolean(pxUser.clientSecret),
+        // Presence only — never the value.
         authorizationUrlSet: Boolean(pxUser.authorizationUrl),
         clientId: publicPxUser.clientId || null,
         tenant: publicPxUser.tenant || null,

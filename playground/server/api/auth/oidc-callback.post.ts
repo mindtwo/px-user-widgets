@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 /**
  * Completes the Authorization Code + PKCE flow for **both** modes the index
- * page offers, and is the only place `client_secret` is read.
+ * page offers.
  *
  * Which mode we're in is decided by `state` — the value that correlates a
  * callback with the request that started it — not by who happens to hold a

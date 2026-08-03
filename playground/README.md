@@ -34,9 +34,10 @@ mounts, renders the attribute as the literal string `undefined`, and the IdP
 answers `invalid_client: Client ID "undefined" not found`, which points nowhere
 useful.
 
-You also need a `client_secret` and the `{context}` tenant prefix for the token
-exchange (`../docs/oidc-external-app-integration.md` §2 lists everything to
-request), and `http://localhost:3000/callback` must be registered as an
+You also need the `{context}` tenant prefix for the token exchange — no client
+secret, the endpoint authenticates with PKCE alone
+(`../docs/oidc-external-app-integration.md` §2 lists everything to request) —
+and `http://localhost:3000/callback` must be registered as an
 **exact-match** `redirect_uri` — an unregistered one fails before the login form
 renders.
 
@@ -79,9 +80,10 @@ browser to `NUXT_PX_USER_AUTHORIZATION_URL`. `state` is validated server-side an
 the pending record is single-use. Leave that env var empty and the button is
 disabled with a hint.
 
-The code-for-token exchange is server-side in both cases — it needs the
-`client_secret`, so it has to be. `server/api/auth/oidc-callback.post.ts` is the
-only place that reads it.
+The code-for-token exchange is server-side in both cases. Not because of a
+secret — there isn't one — but so the tokens land in the sealed session cookie
+instead of in browser memory. `server/api/auth/oidc-callback.post.ts` is the
+only place it happens.
 
 ## Wrapper components
 

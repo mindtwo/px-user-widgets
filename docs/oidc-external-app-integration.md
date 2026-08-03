@@ -15,8 +15,9 @@ If you're on this side: you do **not** mount the widget and you do **not** need 
 dependency. You are a standard OIDC Authorization Code + PKCE client, and any conformant OIDC library will do. The package's
 `@mindtwo/px-user-widgets/oidc` subpath offers a few small browser helpers you may find convenient (§5) — that's the extent of it.
 
-> **The token exchange requires a `client_secret`.** You are a *confidential* client, so the code-for-token exchange **must**
-> happen on your server. A pure browser-only SPA cannot complete this flow.
+> **No `client_secret` is involved.** The token endpoint authenticates the exchange with the PKCE verifier alone — you are a
+> *public* client. A browser-only SPA can technically complete this flow (§5), but §4 is still what we recommend: keeping the
+> verifier out of the browser is the difference between a stolen `code` being useless and being enough.
 
 ## 2. What you need from us before you start
 
@@ -24,8 +25,7 @@ Ask your mindtwo contact for:
 
 | Item | Notes |
 |---|---|
-| `client_id` | e.g. `prod-replit-den` |
-| `client_secret` | Server-side only. Never ship it to the browser |
+| `client_id` | e.g. `prod-replit-den`. If you are handed m2m credentials as `clientId:secret`, only the id is used in this flow |
 | **Authorization URL** | Where you send the user. May be our hosted login UI (`https://<login-host>/`) rather than the raw `/authorize` endpoint — treat it as an opaque base URL and append the standard parameters |
 | **Discovery URL** | `{context}/oidc/v1.0/.well-known/openid-configuration` — resolve the token/userinfo/JWKS endpoints from here instead of hardcoding them |
 | `{context}` prefix | Tenant path segment, e.g. `plx:pxc` |
@@ -60,14 +60,14 @@ your app                      login UI (mindtwo)            PX-User
    │        /auth/callback?code=…&state=…                        │
    │                                                             │
    │ 3. validate state                                           │
-   │ 4. POST code + code_verifier + client_secret ──────────────>│
+   │ 4. POST code + code_verifier + client_id ──────────────────>│
    │<───── access_token, refresh_token, id_token ────────────────┤
 ```
 
 Step 2 may involve a redirect to Microsoft Entra ID and back. That is entirely internal to the login UI — you will not see it, and
 you must not assume the user comes back on the next HTTP request. Only your `redirect_uri` being called means anything.
 
-## 4. Recommended: server-side (confidential client)
+## 4. Recommended: server-side
 
 Keep the verifier and the `state` in your server-side session. Nothing sensitive touches the browser.
 
@@ -128,7 +128,6 @@ export async function handleCallback(query, session) {
             code: query.code,
             code_verifier: pending.verifier,
             client_id: process.env.PX_CLIENT_ID,
-            client_secret: process.env.PX_CLIENT_SECRET,
             redirect_uri: process.env.PX_REDIRECT_URI,
         }),
     });
@@ -173,8 +172,9 @@ const { verifier, state } = readPkce();   // reads and clears
 if (!state || state !== new URLSearchParams(location.search).get('state')) {
     throw new Error('OIDC state mismatch — possible CSRF, abort');
 }
-// POST { code, code_verifier: verifier } to your own backend, which holds the
-// client_secret and calls the token endpoint.
+// POST { code, code_verifier: verifier } to your own backend, which calls the
+// token endpoint. This is what app-teach does — see
+// Domain\User\Services\OidcTokenExchangeService.
 ```
 
 Also exported: `challengeFromVerifier()`, `base64UrlEncode()`, `clearPkce()`, and configurable storage keys — see
@@ -185,8 +185,9 @@ Trade-offs against §4:
 - `sessionStorage` is **per tab**. If your callback lands in a different tab or a fresh window, the verifier is gone and login
   fails. The server-side session in §4 has no such limitation.
 - Anything in `sessionStorage` is reachable by any script on your origin. An XSS bug means a stolen verifier.
-- You still need a server endpoint for the exchange, because of the `client_secret`. §4 is not more work — it's the same work,
-  placed where the secret already lives.
+- You can call the token endpoint straight from the browser — no secret stands in the way — but then the tokens land in the
+  browser too. Once you route the exchange through your own backend anyway, §4 is the same amount of work with the verifier in
+  a place XSS cannot reach.
 
 Prefer §4 unless you have a concrete reason not to.
 
@@ -230,7 +231,7 @@ prefix, e.g. `plx:pxc`.
 ## 8. Before you go live
 
 - [ ] `redirect_uri` registered for every environment, local included
-- [ ] `client_secret` only ever read server-side; not in any bundle, log, or error report
+- [ ] The PKCE verifier never reaches the browser (§4), or the trade-off in §5 was a deliberate decision
 - [ ] `state` validated, and rejection actually fails the login
 - [ ] Replaying an old callback URL fails
 - [ ] Mismatched/absent verifier fails
