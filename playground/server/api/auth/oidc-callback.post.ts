@@ -1,13 +1,19 @@
+import type { UserSession } from '#auth-utils'
+import type { H3Event } from 'h3'
 import { z } from 'zod'
 
 /**
  * Completes the Authorization Code + PKCE flow for **both** modes the index
  * page offers, and is the only place `client_secret` is read.
  *
- * Which mode we're in is decided by who holds the verifier:
+ * Which mode we're in is decided by `state` — the value that correlates a
+ * callback with the request that started it — not by who happens to hold a
+ * verifier. Both records can exist at once: the widget writes a PKCE pair into
+ * sessionStorage on every mount of the sign-in page, and a service attempt that
+ * was never completed leaves its `pendingOidc` behind.
  *
  *  - "Auth as a Service": we minted it in /api/auth/authorize and it sits in the
- *    sealed session. We validate `state` here, server-side.
+ *    sealed session. The callback matches its `state`, and we validate that here.
  *  - "Direct widget login": the widget generated it into sessionStorage, and the
  *    callback page already validated `state` against it before posting.
  *
@@ -25,6 +31,20 @@ const bodySchema = z.object({
 /** Matches the widget's 10 minute pending-request TTL. */
 const PENDING_TTL_MS = 10 * 60 * 1000
 
+/**
+ * Delete the service-mode PKCE record from the session.
+ *
+ * Not `setUserSession(…, { secure: { pendingOidc: undefined } })`: that merges
+ * with `defu`, which skips `undefined` keys, so the record survives every such
+ * attempt and stays in the session for as long as the browser keeps the cookie.
+ * The whole session has to be rewritten for the deletion to take.
+ */
+async function dropPendingOidc(event: H3Event, session: UserSession) {
+    const { pendingOidc, ...secure } = session.secure ?? {}
+
+    await replaceUserSession(event, { ...session, secure })
+}
+
 export default defineEventHandler(async (event) => {
     const { code, state, code_verifier: postedVerifier } = await readValidatedBody(
         event,
@@ -37,39 +57,46 @@ export default defineEventHandler(async (event) => {
     let codeVerifier: string
     let mode: 'service' | 'widget'
 
-    if (pending) {
+    if (pending && state && state === pending.state) {
         mode = 'service'
 
         // Single use: a replayed callback must not succeed. Drop it before any
         // validation so an early return can't leave it usable.
-        await setUserSession(event, { secure: { ...session.secure, pendingOidc: undefined } })
+        await dropPendingOidc(event, session)
 
         if (Date.now() - pending.createdAt > PENDING_TTL_MS) {
             throw createError({ statusCode: 400, statusMessage: 'Login request expired — start again' })
         }
 
-        if (!state || state !== pending.state) {
-            throw createError({
-                statusCode: 400,
-                statusMessage: 'OIDC state mismatch — possible CSRF, aborted',
-            })
-        }
-
         codeVerifier = pending.verifier
     }
-    else {
+    else if (postedVerifier) {
         mode = 'widget'
 
-        if (!postedVerifier) {
-            throw createError({
-                statusCode: 400,
-                statusMessage:
-                    'No PKCE verifier. In widget mode the callback page must send the one it '
-                    + 'read from sessionStorage; in service mode the server-side request expired.',
-            })
-        }
-
+        // A `pendingOidc` from an abandoned service attempt may still be in the
+        // session. It is not what came back here — the `state` above proved
+        // that — so it must not hijack this login. `replaceUserSession` at the
+        // end drops it; leaving it until then keeps a service request that is
+        // genuinely still in flight elsewhere usable.
         codeVerifier = postedVerifier
+    }
+    else if (pending) {
+        // A service request is pending, but this callback carries neither its
+        // `state` nor a verifier of its own — nothing here belongs to it.
+        await dropPendingOidc(event, session)
+
+        throw createError({
+            statusCode: 400,
+            statusMessage: 'OIDC state mismatch — possible CSRF, aborted',
+        })
+    }
+    else {
+        throw createError({
+            statusCode: 400,
+            statusMessage:
+                'No PKCE verifier. In widget mode the callback page must send the one it '
+                + 'read from sessionStorage; in service mode the server-side request expired.',
+        })
     }
 
     const tokens = await exchangeAuthorizationCode({ code, codeVerifier })

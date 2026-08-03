@@ -21,6 +21,8 @@ import type { PxUserWidgetEvent } from '~/composables/usePxUserWidget';
  */
 definePageMeta({ layout: 'auth' });
 
+const route = useRoute();
+
 const { appUrl, pxUser } = useRuntimeConfig().public;
 const { keepAuthorizeParamsInUrl, serviceModeAvailable } = useAuthorizeVia();
 
@@ -54,8 +56,21 @@ onMounted(() => {
     refreshProxyState();
 });
 
+/**
+ * `?prompt=login` on our own URL, forwarded to the widget. The callback page's
+ * "Back to sign in" link sets it: without it the widget finds the SSO session
+ * that the failed attempt left behind and signs the user straight back out to
+ * `/callback`, so the sign-in form never appears.
+ *
+ * A repeated query parameter arrives as an array — that is not a prompt value.
+ */
+const prompt = computed(() =>
+    typeof route.query.prompt === 'string' ? route.query.prompt : undefined,
+);
+
 const arrivedAsAuthorizeRequest = computed(
-    () => Boolean(initialSearch.value) && isAuthorizeRequest(initialSearch.value),
+    () =>
+        Boolean(initialSearch.value) && isAuthorizeRequest(initialSearch.value),
 );
 
 const paramsWereStripped = computed(
@@ -76,9 +91,9 @@ function onWidgetEvent(name: string, event: PxUserWidgetEvent) {
         <div>
             <h1>Sign in</h1>
             <p class="lede">
-                <code>&lt;px-user-oidc&gt;</code> hosts the form here and generates
-                its own PKCE into <code>sessionStorage</code>. The code is
-                exchanged for tokens on the server, via
+                <code>&lt;px-user-oidc&gt;</code> hosts the form here and
+                generates its own PKCE into <code>sessionStorage</code>. The
+                code is exchanged for tokens on the server, via
                 <code>/callback</code>.
             </p>
         </div>
@@ -90,6 +105,7 @@ function onWidgetEvent(name: string, event: PxUserWidgetEvent) {
                 container-id="playground-oidc"
                 :redirect-uri="redirectUri"
                 :keep-authorize-params-in-url="keepAuthorizeParamsInUrl"
+                :prompt="prompt"
                 @login="onWidgetEvent('login', $event)"
                 @error="onWidgetEvent('error', $event)"
                 @reset="onWidgetEvent('reset', $event)"
@@ -131,16 +147,20 @@ function onWidgetEvent(name: string, event: PxUserWidgetEvent) {
                     </summary>
 
                     <p class="muted">
-                        No widget is involved. The link is a normal navigation to
+                        No widget is involved. The link is a normal navigation
+                        to
                         <code>/api/auth/authorize</code>, which 302s onward. The
                         <code>state</code> and <code>code_challenge</code> are
-                        minted per request on the server and are deliberately not
-                        shown — the verifier never reaches the browser.
+                        minted per request on the server and are deliberately
+                        not shown — the verifier never reaches the browser.
                     </p>
 
                     <table class="table">
                         <thead>
-                            <tr><th>Parameter</th><th>Value</th></tr>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Value</th>
+                            </tr>
                         </thead>
                         <tbody>
                             <tr>
@@ -150,7 +170,9 @@ function onWidgetEvent(name: string, event: PxUserWidgetEvent) {
                             <tr>
                                 <td><code>client_id</code></td>
                                 <td>
-                                    <code v-if="pxUser.clientId">{{ pxUser.clientId }}</code>
+                                    <code v-if="pxUser.clientId">{{
+                                        pxUser.clientId
+                                    }}</code>
                                     <span v-else class="warn">
                                         NUXT_PUBLIC_PX_USER_CLIENT_ID is empty
                                     </span>
@@ -158,11 +180,15 @@ function onWidgetEvent(name: string, event: PxUserWidgetEvent) {
                             </tr>
                             <tr>
                                 <td><code>redirect_uri</code></td>
-                                <td><code>{{ redirectUri }}</code></td>
+                                <td>
+                                    <code>{{ redirectUri }}</code>
+                                </td>
                             </tr>
                             <tr>
                                 <td><code>scope</code></td>
-                                <td><code>{{ pxUser.scope }}</code></td>
+                                <td>
+                                    <code>{{ pxUser.scope }}</code>
+                                </td>
                             </tr>
                             <tr>
                                 <td><code>code_challenge_method</code></td>
@@ -200,7 +226,11 @@ function onWidgetEvent(name: string, event: PxUserWidgetEvent) {
                     <tr>
                         <td>Arrived as an authorize request</td>
                         <td>
-                            <span :class="arrivedAsAuthorizeRequest ? 'ok' : 'muted'">
+                            <span
+                                :class="
+                                    arrivedAsAuthorizeRequest ? 'ok' : 'muted'
+                                "
+                            >
                                 {{ arrivedAsAuthorizeRequest ? 'yes' : 'no' }}
                             </span>
                         </td>
@@ -208,9 +238,18 @@ function onWidgetEvent(name: string, event: PxUserWidgetEvent) {
                     <tr>
                         <td>Params stripped from the URL</td>
                         <td>
-                            <span v-if="!arrivedAsAuthorizeRequest" class="muted">n/a</span>
-                            <span v-else :class="paramsWereStripped ? 'ok' : 'warn'">
-                                {{ paramsWereStripped ? 'yes' : 'still present' }}
+                            <span
+                                v-if="!arrivedAsAuthorizeRequest"
+                                class="muted"
+                                >n/a</span
+                            >
+                            <span
+                                v-else
+                                :class="paramsWereStripped ? 'ok' : 'warn'"
+                            >
+                                {{
+                                    paramsWereStripped ? 'yes' : 'still present'
+                                }}
                             </span>
                         </td>
                     </tr>
@@ -225,20 +264,33 @@ function onWidgetEvent(name: string, event: PxUserWidgetEvent) {
                     <tr>
                         <td><code>el.isProxyingAuthorizeRequest</code></td>
                         <td>
-                            <span :class="proxying ? 'ok' : 'muted'">{{ proxying }}</span>
+                            <span :class="proxying ? 'ok' : 'muted'">{{
+                                proxying
+                            }}</span>
                         </td>
                     </tr>
                     <tr>
                         <td><code>data-keep-authorize-params-in-url</code></td>
-                        <td><code>{{ keepAuthorizeParamsInUrl }}</code></td>
+                        <td>
+                            <code>{{ keepAuthorizeParamsInUrl }}</code>
+                        </td>
                     </tr>
                 </tbody>
             </table>
 
-            <pre v-if="pending" class="code-block" style="margin-top: 0.75rem">{{ JSON.stringify(pending, null, 2) }}</pre>
+            <pre
+                v-if="pending"
+                class="code-block"
+                style="margin-top: 0.75rem"
+                >{{ JSON.stringify(pending, null, 2) }}</pre
+            >
 
             <p style="margin-top: 1rem">
-                <button type="button" class="btn btn--ghost" @click="refreshProxyState">
+                <button
+                    type="button"
+                    class="btn btn--ghost"
+                    @click="refreshProxyState"
+                >
                     Refresh
                 </button>
             </p>

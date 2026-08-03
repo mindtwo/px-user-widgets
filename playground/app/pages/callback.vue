@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { readPkce } from '@mindtwo/px-user-widgets/oidc'
+import { readPkce } from '@mindtwo/px-user-widgets/oidc';
 
 /**
  * The registered redirect_uri. Handles the return leg of both modes.
@@ -12,96 +12,108 @@ import { readPkce } from '@mindtwo/px-user-widgets/oidc'
  * The authorization code has a 5 second TTL — this runs the exchange
  * immediately, with no confirmation step in between.
  */
-definePageMeta({ layout: 'auth', ssr: false })
+definePageMeta({ layout: 'auth', ssr: false });
 
-const session = useUserSession()
+const session = useUserSession();
 
-type State = 'working' | 'error'
+type State = 'working' | 'error';
 
-const state = ref<State>('working')
-const step = ref('Reading the callback…')
-const mode = ref<'service' | 'widget' | null>(null)
-const error = ref<{ title: string, detail?: string, data?: unknown } | null>(null)
+const state = ref<State>('working');
+const step = ref('Reading the callback…');
+const mode = ref<'service' | 'widget' | null>(null);
+const error = ref<{ title: string; detail?: string; data?: unknown } | null>(
+    null,
+);
 
 function fail(title: string, detail?: string, data?: unknown) {
-    state.value = 'error'
-    error.value = { title, detail, data }
+    state.value = 'error';
+    error.value = { title, detail, data };
 }
 
 onMounted(async () => {
-    const params = new URLSearchParams(window.location.search)
+    const params = new URLSearchParams(window.location.search);
 
-    const idpError = params.get('error')
+    const idpError = params.get('error');
 
     if (idpError) {
         // login_required, access_denied, account_selection_required, …
-        return fail(idpError, params.get('error_description') ?? undefined)
+        return fail(idpError, params.get('error_description') ?? undefined);
     }
 
-    const code = params.get('code')
-    const returnedState = params.get('state')
+    const code = params.get('code');
+    const returnedState = params.get('state');
 
     if (!code) {
         return fail(
             'No authorization code',
-            'The callback carried neither `code` nor `error`. If you opened this URL '
-            + 'directly, start again from the sign-in page.',
-        )
+            'The callback carried neither `code` nor `error`. If you opened this URL ' +
+                'directly, start again from the sign-in page.',
+        );
     }
 
-    // Who owns the verifier decides the mode. readPkce() consumes by default,
-    // which is what we want — one login attempt, one verifier.
-    const { verifier, state: storedState } = readPkce()
+    // `state` decides the mode, not the presence of a verifier: the widget
+    // writes a PKCE pair into sessionStorage on every mount of the sign-in page,
+    // so one is sitting there even when the login that actually ran was the
+    // service flow. Only a callback carrying the state we stored is the widget's.
+    //
+    // readPkce() consumes by default, which is what we want either way — one
+    // login attempt, one verifier.
+    const { verifier, state: storedState } = readPkce();
 
-    if (verifier) {
-        mode.value = 'widget'
-        step.value = 'Validating state…'
+    step.value = 'Validating state…';
 
-        if (!storedState || storedState !== returnedState) {
-            return fail(
-                'OIDC state mismatch — possible CSRF, aborted',
-                `Stored "${storedState ?? 'none'}" but the callback returned "${returnedState ?? 'none'}".`,
-            )
-        }
+    if (verifier && storedState && storedState === returnedState) {
+        mode.value = 'widget';
+    } else {
+        // Not ours — the server should be holding the verifier for this `state`,
+        // and it validates the match itself. Anything we read above was stale.
+        mode.value = 'service';
     }
-    else {
-        // No verifier in sessionStorage: the server should be holding one.
-        mode.value = 'service'
-    }
 
-    step.value = 'Exchanging the code for tokens…'
+    step.value = 'Exchanging the code for tokens…';
 
     try {
-        const result = await $fetch<{ mode: 'service' | 'widget' }>('/api/auth/oidc-callback', {
-            method: 'POST',
-            body: {
-                code,
-                state: returnedState ?? undefined,
-                code_verifier: verifier ?? undefined,
+        const result = await $fetch<{ mode: 'service' | 'widget' }>(
+            '/api/auth/oidc-callback',
+            {
+                method: 'POST',
+                body: {
+                    code,
+                    state: returnedState ?? undefined,
+                    // Only in widget mode: a stale verifier would make the server
+                    // exchange this code against a PKCE pair it was never bound to.
+                    code_verifier:
+                        mode.value === 'widget' ? verifier : undefined,
+                },
             },
-        })
+        );
 
-        mode.value = result.mode
-    }
-    catch (err) {
-        const e = err as { statusMessage?: string, data?: { statusMessage?: string, data?: unknown } }
+        mode.value = result.mode;
+    } catch (err) {
+        const e = err as {
+            statusMessage?: string;
+            data?: { statusMessage?: string; data?: unknown };
+        };
 
         return fail(
             e.data?.statusMessage ?? e.statusMessage ?? 'Token exchange failed',
             undefined,
             e.data?.data,
-        )
+        );
     }
 
-    step.value = 'Loading your session…'
-    await session.fetch()
+    step.value = 'Loading your session…';
+    await session.fetch();
 
     if (!session.loggedIn.value) {
-        return fail('The session did not stick', 'The token exchange succeeded but no session was established.')
+        return fail(
+            'The session did not stick',
+            'The token exchange succeeded but no session was established.',
+        );
     }
 
-    await navigateTo('/dashboard')
-})
+    await navigateTo('/dashboard');
+});
 </script>
 
 <template>
@@ -111,8 +123,13 @@ onMounted(async () => {
             <p class="lede">{{ step }}</p>
             <p v-if="mode" class="muted">
                 Resolved flow: <code class="tag">{{ mode }}</code>
-                <template v-if="mode === 'widget'"> — PKCE verifier came from <code>sessionStorage</code></template>
-                <template v-else> — PKCE verifier came from the server session</template>
+                <template v-if="mode === 'widget'">
+                    — PKCE verifier came from
+                    <code>sessionStorage</code></template
+                >
+                <template v-else>
+                    — PKCE verifier came from the server session</template
+                >
             </p>
         </template>
 
@@ -120,7 +137,9 @@ onMounted(async () => {
             <h1>Sign-in failed</h1>
 
             <div class="notice notice--danger">
-                <p><strong>{{ error?.title }}</strong></p>
+                <p>
+                    <strong>{{ error?.title }}</strong>
+                </p>
                 <p v-if="error?.detail">{{ error.detail }}</p>
             </div>
 
@@ -128,17 +147,22 @@ onMounted(async () => {
                 Resolved flow: <code class="tag">{{ mode }}</code>
             </p>
 
-            <pre v-if="error?.data" class="code-block">{{ JSON.stringify(error.data, null, 2) }}</pre>
+            <pre v-if="error?.data" class="code-block">{{
+                JSON.stringify(error.data, null, 2)
+            }}</pre>
 
             <p>
-                <NuxtLink class="btn" to="/">Back to sign in</NuxtLink>
+                <NuxtLink class="btn" to="/?prompt=login"
+                    >Back to sign in</NuxtLink
+                >
             </p>
 
             <p class="muted">
-                A repeated failure here is usually configuration rather than code — check
+                A repeated failure here is usually configuration rather than
+                code — check
                 <code>/api/debug/oidc-discovery</code>, and that
-                <code>{{ $config.public.appUrl }}/callback</code> is registered as an
-                exact-match redirect_uri.
+                <code>{{ $config.public.appUrl }}/callback</code> is registered
+                as an exact-match redirect_uri.
             </p>
         </template>
     </div>
