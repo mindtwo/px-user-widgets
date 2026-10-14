@@ -21,6 +21,9 @@ createWidgetElement('password-forgot', 'px-user-forgot-password');
 // Create element for activate user
 createWidgetElement('activate-user', undefined, PxUserTokenWidget);
 
+// Alternative Email widget
+createWidgetElement('alternative-email', undefined, PxUserTokenWidget);
+
 // Create WidgetElement
 createCustomElement(
     'px-user-activate-user-and-login',
